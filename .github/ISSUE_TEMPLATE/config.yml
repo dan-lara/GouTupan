@@ -1,11 +1,11 @@
 blank_issues_enabled: false
-contact_links:
-  - name: Demande de Fonctionnalité
-    url: https://github.com/portable016/GouTupan/issues/new?template=feature.md
-    about: Suggérer une nouvelle fonctionnalité ou amélioration
-  - name: Demande de Documentation
-    url: https://github.com/portable016/GouTupan/issues/new?template=documentation.md
-    about: Demander une mise à jour ou une nouvelle documentation
-  - name: Rapport de Bug
-    url: https://github.com/portable016/GouTupan/issues/new?template=bug.md
-    about: Signaler un bug ou un problème avec le projet
+# contact_links:
+#   - name: Demande de Fonctionnalité
+#     url: https://github.com/portable016/GouTupan/issues/new?template=feature.md
+#     about: Suggérer une nouvelle fonctionnalité ou amélioration
+#   - name: Demande de Documentation
+#     url: https://github.com/portable016/GouTupan/issues/new?template=documentation.md
+#     about: Demander une mise à jour ou une nouvelle documentation
+#   - name: Rapport de Bug
+#     url: https://github.com/portable016/GouTupan/issues/new?template=bug.md
+#     about: Signaler un bug ou un problème avec le projet
