@@ -1,6 +1,6 @@
 ---
 name: Feature
-about: idea for this project
+about: Tâche de fonctionnalité
 title: ''
 labels: ''
 assignees: ''

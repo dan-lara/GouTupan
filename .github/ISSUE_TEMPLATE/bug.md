@@ -1,3 +1,12 @@
+---
+name: Bug
+about: Créer une demande pour résourdre le bug
+title: ''
+labels: bug
+assignees: ''
+
+---
+
 # Rapport de Bug
 
 ## Description

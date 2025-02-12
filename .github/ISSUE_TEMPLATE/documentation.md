@@ -1,3 +1,12 @@
+---
+name: Documentation
+about: Demande de documentation
+title: "[DOC] - "
+labels: documentation
+assignees: ''
+
+---
+
 # Rapport de Documentation
 
 ## Problème
@@ -24,5 +33,3 @@ Ajoutez des captures d'écran si nécessaire.
 ## Informations supplémentaires
 
 Ajoutez toute autre information utile.
-
-Merci !
