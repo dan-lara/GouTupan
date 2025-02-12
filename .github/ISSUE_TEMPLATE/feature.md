@@ -1,3 +1,12 @@
+---
+name: Feature
+about: idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 # Demande de Fonctionnalité
 
 ## Description
