@@ -1,4 +1,4 @@
-//Test antenne
+//Securisation du code
 
 #include <MKRWAN.h>  // Bibliothèque pour gérer le module LoRa intégré
 
