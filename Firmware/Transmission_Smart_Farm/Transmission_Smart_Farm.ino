@@ -1,4 +1,4 @@
-//Securisation du code
+//Securisation du code APPKEY
 
 #include <MKRWAN.h>  // Bibliothèque pour gérer le module LoRa intégré
 
