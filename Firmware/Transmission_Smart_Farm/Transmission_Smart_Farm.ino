@@ -4,9 +4,9 @@
 
 LoRaModem MKR1013modem;
 
-#include "arduino_secrets.h"
-String appEui = "AA2025AAAA2025AA";
-String appKey = "7E72F8E351AA2605A8F71F03CE6835DC";
+#include "Arduino_Key.h"
+String appEui = APPEUI;
+String appKey = APPKEY;
 
 void setup() 
 {
