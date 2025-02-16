@@ -35,14 +35,45 @@ void initializeLoRa()
     MKR1013modem.minPollInterval(60);
 }
 
-void sendLoRaMessage(int value) 
+// Fonction pour compresser la température
+uint8_t compressTemperature(float temperature) 
 {
-    Serial.println();
-    Serial.print("Envoi du message : ");
-    Serial.println(value);
+    // Arrondir la température à 1 décimale
+    float truncatedTemp = round(temperature * 10);
 
+    // Convertir la température en entier, en supprimant la partie décimale
+    uint16_t tempInCelsius = (uint16_t)truncatedTemp;
+
+    // Diviser la valeur par 2
+    uint8_t halfTemp = tempInCelsius / 2;
+
+    // Convertir en uint8_t (8 bits)
+    uint8_t compressedValue = (uint8_t)halfTemp;
+
+    // Affichage dans le Serial Monitor
+    Serial.print("Température originale : ");
+    Serial.print(temperature);
+    Serial.print("°C -> Arrondi/2 : ");
+    Serial.print(halfTemp);
+    Serial.print(" -> Comprimé : 0x");
+    if (compressedValue < 0x10) Serial.print("0"); // Ajoute un '0' pour avoir 2 caractères
+    Serial.println(compressedValue, HEX);
+
+    return compressedValue;
+}
+
+void sendLoRaMessage(float value) 
+{
+    // Compresser la température avant l'envoi
+    uint8_t compressedTemp = compressTemperature(value);
+
+    Serial.println();
+    Serial.print("Envoi du message (température compressée) : ");
+    Serial.println(compressedTemp, HEX);  // Affichage de la valeur compressée en hex
+
+    // Envoi du message LoRa
     MKR1013modem.beginPacket();
-    MKR1013modem.print(value);
+    MKR1013modem.print(compressedTemp);
     int err = MKR1013modem.endPacket(true);
 
     if (err > 0) 

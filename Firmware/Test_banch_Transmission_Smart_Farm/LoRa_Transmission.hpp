@@ -3,8 +3,9 @@
 
 #include <MKRWAN.h>
 
-// Declaration des fonctions
+// Déclaration des fonctions
 void initializeLoRa();
-void sendLoRaMessage(int value);
+void sendLoRaMessage(float value);
+uint8_t compressTemperature(float temperature);
 
 #endif
