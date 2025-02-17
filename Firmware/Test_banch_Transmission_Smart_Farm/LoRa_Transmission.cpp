@@ -68,12 +68,13 @@ void sendLoRaMessage(float value)
     uint8_t compressedTemp = compressTemperature(value);
 
     Serial.println();
-    Serial.print("Envoi du message (température compressée) : ");
-    Serial.println(compressedTemp, HEX);  // Affichage de la valeur compressée en hex
+    Serial.print("Envoi du message (température compressée) : 0x");
+    if (compressedTemp < 0x10) Serial.print("0");  // Affichage formaté
+    Serial.println(compressedTemp, HEX);
 
-    // Envoi du message LoRa
+    // Envoi du message LoRa en binaire
     MKR1013modem.beginPacket();
-    MKR1013modem.print(compressedTemp);
+    MKR1013modem.write(compressedTemp);  // Envoie un vrai byte hexadécimal
     int err = MKR1013modem.endPacket(true);
 
     if (err > 0) 

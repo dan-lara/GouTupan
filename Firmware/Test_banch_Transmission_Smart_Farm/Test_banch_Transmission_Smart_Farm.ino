@@ -3,7 +3,7 @@
 #include "LoRa_Transmission.hpp"
 #include <ArduinoLowPower.h> //Break low power mode
 
-bool online_mode = 0; //TTN Network is valable or not ? 
+bool online_mode = 1; //TTN Network is valable or not ? 
 
 void setup() 
 {
@@ -48,6 +48,6 @@ void loop()
             }
 
         //LowPower.sleep(20000);  // Envoie le microcontrôleur en mode sommeil pendant 20 secondes BUT NEED Wake up module or RTC timer
-        delay(2000);  // Respecter les contraintes de transmission 2s
+        delay(20000);  // Respecter les contraintes de transmission 2s
     }
 }
