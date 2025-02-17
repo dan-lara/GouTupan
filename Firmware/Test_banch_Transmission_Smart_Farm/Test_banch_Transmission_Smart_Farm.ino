@@ -25,7 +25,7 @@ void loop()
     float outside_temperature = 9.58;
     float outside_CO2 = 3220.53;
 
-    for (float ii = 1; ii < 10; ii+=0.34) 
+    for (float ii = 0; ii < 10; ii+=0.1) 
     {
         if (online_mode == 0 ) 
             {
