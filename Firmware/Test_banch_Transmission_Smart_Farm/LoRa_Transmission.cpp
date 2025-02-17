@@ -39,7 +39,7 @@ void initializeLoRa()
 uint8_t compressTemperature(float temperature) 
 {
     // Arrondir la température à 1 décimale
-    float truncatedTemp = round(temperature * 10);
+    float truncatedTemp = round(temperature);
 
     // Convertir la température en entier, en supprimant la partie décimale
     uint16_t tempInCelsius = (uint16_t)truncatedTemp;
@@ -62,15 +62,75 @@ uint8_t compressTemperature(float temperature)
     return compressedValue;
 }
 
+// Fonction pour compresser la température
+uint16_t compress_3_HEX(float no_compressed) 
+{
+    // Round data
+    uint16_t truncatedTemp = round(no_compressed);
+
+    // Affichage dans le Serial Monitor
+    Serial.print("Original data : ");
+    Serial.print(no_compressed);
+    Serial.print(" -> Compressed : 0x");
+    if (truncatedTemp < 0x10) Serial.print("0"); // Add "O" for have 2nd char
+    if (truncatedTemp < 0x100) Serial.print("0"); // Add "O" for have 3rd char
+    Serial.println(truncatedTemp, HEX);
+
+    return truncatedTemp;
+}
+
+void Send_LoRa_Data(uint8_t mux_code, float outside_temperature, float outside_CO2) 
+{
+    uint8_t payload[51] = {0};  // Initialisation du payload
+
+    // 1️⃣ Ajouter le `mux_code` (1 octet)
+    payload[0] = mux_code << 4;
+
+    // 2️⃣ 1_HEX byte temperature compression
+    uint8_t compressed_outside_temperature = compressTemperature (outside_temperature*10);
+    payload[0] += (compressed_outside_temperature >> 4);
+    payload[1] = ((compressed_outside_temperature << 4));
+
+    // 3️⃣ 1,5_HEX byte CO2 compression
+    uint16_t compressed_outside_CO2 = compress_3_HEX (outside_CO2);
+    payload[1] += (compressed_outside_CO2) >> 8;  // 4 high-order bits
+    payload[2] =  (compressed_outside_CO2);       // 8 low-order bits
+
+    // 4️⃣ Remplir le reste du payload avec 0x00 pour arriver à 51 octets
+    
+    for (int i = 3; i < 51; i++) 
+    {
+        payload[i] = 0x00;  // Placeholder
+    }
+
+    // 5️⃣ Affichage Debug
+    Serial.print("Envoi LoRa -> Payload : ");
+    for (int i = 0; i < 51; i++) 
+    {
+        if (payload[i] < 0x10) Serial.print("0");  // Format hex sur 2 caractères
+        Serial.print(payload[i], HEX);
+        Serial.print(" ");
+    }
+    Serial.println();
+
+    // 6️⃣ Envoi via LoRa
+    MKR1013modem.beginPacket();
+    MKR1013modem.write(payload, sizeof(payload));
+    int err = MKR1013modem.endPacket(true);
+
+    if (err > 0) 
+    {
+        Serial.println("✅ Message envoyé avec succès !");
+    } else 
+    {
+        Serial.println("❌ Error while sending, PLEASE check antenna, enough Monsieur Inaf !");
+    }
+}
+
 void sendLoRaMessage(float value) 
 {
     // Compresser la température avant l'envoi
     uint8_t compressedTemp = compressTemperature(value);
-
-    Serial.println();
-    Serial.print("Envoi du message (température compressée) : 0x");
-    if (compressedTemp < 0x10) Serial.print("0");  // Affichage formaté
-    Serial.println(compressedTemp, HEX);
 
     // Envoi du message LoRa en binaire
     MKR1013modem.beginPacket();
@@ -79,9 +139,9 @@ void sendLoRaMessage(float value)
 
     if (err > 0) 
     {
-        Serial.println("Message envoyé avec succès !");
+        Serial.println("Sending successfull !");
     } else 
     {
-        Serial.println("Erreur lors de l'envoi du message.");
+        Serial.println("Error, check Antenna PLEASE !!!");
     }
 }
