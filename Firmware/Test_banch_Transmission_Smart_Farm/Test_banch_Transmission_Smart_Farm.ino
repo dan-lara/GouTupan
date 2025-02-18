@@ -27,7 +27,7 @@ void loop()
 
     float battery_level = 82.092; //%
     float soil_nutrients_N_Nitrogen = 198.29; //ppm
-    float soil_nutrients_P_Phosphorus = 12.02; //ppm
+    float soil_nutrients_P_Phosphorus = 13.22; //ppm
     float soil_nutrients_K_Potassium = 287.99; //ppm
 
     float surface_temperature = 8.58; //°C
@@ -35,6 +35,8 @@ void loop()
 
     float deep_temperature = 7.22; //°C
     float deep_humidity = 87.0793; //%
+
+    float light_intensity = 13929.928; //Lux
 
     for (float ii = 0; ii < 10; ii+=0.1) 
     {
@@ -50,7 +52,8 @@ void loop()
             Send_LoRa_Data(mux_code, 20 + ii, outside_CO2, outside_humidity, battery_level,
             soil_nutrients_N_Nitrogen, soil_nutrients_P_Phosphorus, soil_nutrients_K_Potassium,
             surface_temperature, surface_humidity,
-            deep_temperature, deep_humidity
+            deep_temperature, deep_humidity,
+            light_intensity
             );
             }
         //LowPower.sleep(20000);  // Envoie le microcontrôleur en mode sommeil pendant 20 secondes BUT NEED Wake up module or RTC timer

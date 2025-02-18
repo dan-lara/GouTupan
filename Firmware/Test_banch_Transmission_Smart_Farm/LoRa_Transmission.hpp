@@ -12,7 +12,8 @@ void Send_LoRa_Data(
     float battery_level, 
     float soil_nutrients_N_Nitrogen, float soil_nutrients_P_Phosphorus, float soil_nutrients_K_Potassium, 
     float surface_temperature, float surface_humidity, 
-    float deep_temperature, float deep_humidity
+    float deep_temperature, float deep_humidity,
+    float light_intensity
 );
 uint8_t compress_2_HEX (float value); 
 uint16_t compress_3_HEX(float no_compressed);
