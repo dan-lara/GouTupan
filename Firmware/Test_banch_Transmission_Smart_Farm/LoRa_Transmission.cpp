@@ -36,31 +36,29 @@ void initializeLoRa()
 }
 
 // Fonction pour compresser la température
-uint8_t compressTemperature(float temperature) 
+uint8_t compress_2_HEX (float value) 
 {
-    // Arrondir la température à 1 décimale
-    float truncatedTemp = round(temperature);
+    // Round the value to the nearest integer
+    float truncatedValue = round(value);
 
-    // Convertir la température en entier, en supprimant la partie décimale
-    uint16_t tempInCelsius = (uint16_t)truncatedTemp;
+    // Convert to an integer (remove decimal part)
+    uint16_t intValue = (uint16_t)truncatedValue;
 
-    // Diviser la valeur par 2
-    uint8_t halfTemp = tempInCelsius / 2;
+    // Convert to uint8_t (8 bits) with saturation if exceeding the limit
+    uint8_t compressedValue = (uint8_t)min(intValue, 255);
 
-    // Convertir en uint8_t (8 bits)
-    uint8_t compressedValue = (uint8_t)halfTemp;
-
-    // Affichage dans le Serial Monitor
-    Serial.print("Température originale : ");
-    Serial.print(temperature);
-    Serial.print("°C -> Arrondi/2 : ");
-    Serial.print(halfTemp);
-    Serial.print(" -> Comprimé : 0x");
-    if (compressedValue < 0x10) Serial.print("0"); // Ajoute un '0' pour avoir 2 caractères
+    // Debug: Print the compression process
+    Serial.print("Original value: ");
+    Serial.print(value);
+    Serial.print(" -> Rounded: ");
+    Serial.print(intValue);
+    Serial.print(" -> Compressed: 0x");
+    if (compressedValue < 0x10) Serial.print("0"); // Ensure 2-character HEX format
     Serial.println(compressedValue, HEX);
 
     return compressedValue;
 }
+
 
 // Fonction pour compresser la température
 uint16_t compress_3_HEX(float no_compressed) 
@@ -79,7 +77,14 @@ uint16_t compress_3_HEX(float no_compressed)
     return truncatedTemp;
 }
 
-void Send_LoRa_Data(uint8_t mux_code, float outside_temperature, float outside_CO2, float outside_humidity) 
+void Send_LoRa_Data(
+    uint8_t mux_code, 
+    float outside_temperature, float outside_CO2, float outside_humidity, 
+    float battery_level, 
+    float soil_nutrients_N_Nitrogen, float soil_nutrients_P_Phosphorus, float soil_nutrients_K_Potassium, 
+    float surface_temperature, float surface_humidity, 
+    float deep_temperature, float deep_humidity
+)
 {
     // 0️⃣ Data Compression Precision
     Serial.println("⚙️ Data Compression Precision : ");
@@ -96,27 +101,32 @@ void Send_LoRa_Data(uint8_t mux_code, float outside_temperature, float outside_C
     payload[0] = mux_code << 4;
 
     // 2️⃣ 1_HEX byte temperature compression
-    uint8_t compressed_outside_temperature = compressTemperature(outside_temperature * 10);
-    payload[0] += (compressed_outside_temperature >> 4);
-    payload[1] = ((compressed_outside_temperature << 4));
+    uint8_t compressed_outside_temperature = compress_2_HEX(outside_temperature * 5);
+    payload[0] += (compressed_outside_temperature >> 4);  // 4 high-order bits
+    payload[1] = ((compressed_outside_temperature << 4)); // 4 low-order bits
 
     // 3️⃣ 1.5_HEX byte CO2 compression
     uint16_t compressed_outside_CO2 = compress_3_HEX(outside_CO2);
     payload[1] += (compressed_outside_CO2) >> 8;  // 4 high-order bits
     payload[2] =  (compressed_outside_CO2);       // 8 low-order bits
 
-    // 3️⃣ 1.5_HEX byte CO2 compression
+    // 4️⃣ 1.5_HEX byte CO2 compression
     uint16_t compressed_outside_humidity = compress_3_HEX(outside_humidity*25); // *10 *2,5 for +/-0.015 
-    payload[3] += (compressed_outside_humidity) >> 4;  // 4 high-order bits
-    payload[4] =  (compressed_outside_humidity) <<8;       // 8 low-order bits
+    payload[3] += (compressed_outside_humidity) >> 4;  // 8 high-order bits
+    payload[4] =  (compressed_outside_humidity) << 8;  // 4 low-order bits
 
-    // 4️⃣ Fill the rest of the payload with 0x00 (padding up to 51 bytes)
-    for (int i = 5; i < 51; i++) 
+    // 5️⃣ 1_HEX byte temperature compression
+    uint8_t compressed_battery_level = compress_2_HEX(battery_level * 10 / 4 );
+    payload[4] += (compressed_battery_level) >> 4;  // 4 high-order bits
+    payload[5] =  (compressed_battery_level) << 4;  // 4 low-order bits
+
+    // 6️⃣ Fill the rest of the payload with 0x00 (padding up to 51 bytes)
+    for (int i = 6; i < 51; i++) 
     {
         payload[i] = 0x00;
     }
 
-    // 5️⃣ Debug print payload
+    // 7️⃣ Debug print payload 9️⃣
     Serial.println();  // Empty line for better readability
     Serial.println();  // Empty line for better readability
     Serial.print("Sending LoRa -> Payload: ");
@@ -129,7 +139,7 @@ void Send_LoRa_Data(uint8_t mux_code, float outside_temperature, float outside_C
 
     int err = 0;  // Initialize error flag
 
-    // 6️⃣ Keep trying until message is sent successfully
+    // 8️⃣ Keep trying until message is sent successfully
     do 
     {
         Serial.println("\nAttempting to send LoRa message...");
@@ -153,7 +163,7 @@ void Send_LoRa_Data(uint8_t mux_code, float outside_temperature, float outside_C
 void LoraUnitShipment (float value)  // For debuging
 {
     // Compress the temperature before sending
-    uint8_t compressedTemp = compressTemperature(value);
+    uint8_t compressedTemp = compress_2_HEX(value);
 
     int err = 0; // Initialize error flag
 

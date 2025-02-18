@@ -10,6 +10,7 @@ function decodeUplink(input)
             let outside_Temperature = (((input.bytes[0] & 0x0F) << 4) | ((input.bytes[1] >> 4))) / 5;
             let outside_CO2 = ((input.bytes[1] & 0x0F) << 8) + (input.bytes[2] );  // Reconvertir le CO2
             let outside_Humidity = (((input.bytes[3]) << 4) + (input.bytes[4] & 0xF0 ))/25;  // Converting back humidity 
+            let baterry_level = (((input.bytes[4] & 0x0F) << 4) | ((input.bytes[5] >> 4))) /2.5;
              
             return {
               data: {
@@ -17,6 +18,7 @@ function decodeUplink(input)
                   Outside_Temperature: outside_Temperature,
                   Outside_CO2: outside_CO2,
                   Outside_Humidity: outside_Humidity,
+                  Baterry_Level: baterry_level,
                   
                   //Surface_Temperature:  surfaceTemperature,  // Temperature in the soil surface (5cm)
                   //Deep_Temperature : deepTemperature         // Temperature at 30cm depth in soil
