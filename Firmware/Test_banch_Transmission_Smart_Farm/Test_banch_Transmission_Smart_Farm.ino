@@ -21,9 +21,10 @@ void loop()
 {
     // Exemple d envoi de temperature (environ 38.9°C)
     float temperature = 38.924;
-    uint8_t mux_code = 0x1;
-    float outside_temperature = 9.58;
-    float outside_CO2 = 3220.53;
+    uint8_t mux_code = 0x1; //Sending 1 data
+    float outside_temperature = 9.58; //°C
+    float outside_humidity = 99.854; //%
+    float outside_CO2 = 3220.53; //ppm
 
     for (float ii = 0; ii < 10; ii+=0.1) 
     {
@@ -36,7 +37,7 @@ void loop()
         else
             {
             //Real mode (online)
-            Send_LoRa_Data(mux_code, 20 + ii, outside_CO2);            
+            Send_LoRa_Data(mux_code, 20 + ii, outside_CO2, outside_humidity);
             }
 
         //LowPower.sleep(20000);  // Envoie le microcontrôleur en mode sommeil pendant 20 secondes BUT NEED Wake up module or RTC timer
