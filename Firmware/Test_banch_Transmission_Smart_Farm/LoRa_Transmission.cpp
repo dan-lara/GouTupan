@@ -89,116 +89,125 @@ void Send_LoRa_Data(
 {
     // 0️⃣ Data Compression Precision
     Serial.println("⚙️ Data Compression Precision : ");
-    Serial.println("Outside Temperature ±0.1°C  |  Outside CO2 ±0.5 ppm  |  Outside Humidity ±0.015%");
+    Serial.println("Outside Temperature ±0.01°C  |  Outside CO2 ±0.5 ppm  |  Outside Humidity ±0.015%");
     Serial.println("Battery Level ±0.2%");
     Serial.println("NPK ±0.5 ppm  |  Surface Humidity ±0.015%  |  Surface Temperature ±0.015°C ");
     Serial.println("Deep Temperature ±0.015°C  |  Deep Humidity ±0.015%");
     Serial.println("Lux Sensor ±5 lux");
     Serial.println();  // Empty line for better readability
-
-    uint8_t payload[51] = {0};  // Initialize payload array
+    
+    uint8_t NB_BITS = 20;
+    uint8_t payload[NB_BITS] = {0};  // Initialize payload array
 
     // 1️⃣ Add `mux_code` (1 byte)
     payload[0] = mux_code << 4;
 
     // 2️⃣ 1_HEX byte temperature compression
-    uint8_t compressed_outside_temperature = compress_2_HEX(outside_temperature * 5);
-    payload[0] += (compressed_outside_temperature >> 4);  // 4 high-order bits
-    payload[1] = ((compressed_outside_temperature << 4)); // 4 low-order bits
+    //uint8_t compressed_outside_temperature = compress_2_HEX(outside_temperature * 5);
+    //payload[0] += (compressed_outside_temperature >> 4);  // 4 high-order bits
+    //payload[1] = ((compressed_outside_temperature << 4)); // 4 low-order bits
 
     // 3️⃣ 1.5_HEX byte CO2 compression
     uint16_t compressed_outside_CO2 = compress_3_HEX(outside_CO2);
-    payload[1] += (compressed_outside_CO2) >> 8;  // 4 high-order bits
-    payload[2] =  (compressed_outside_CO2);       // 8 low-order bits
+    payload[0] += (compressed_outside_CO2) >> 8;  // 4 high-order bits
+    payload[1] =  (compressed_outside_CO2);       // 8 low-order bits
 
     // 4️⃣ 1.5_HEX byte humidity compression
     uint16_t compressed_outside_humidity = compress_3_HEX(outside_humidity*25); // *10 *2,5 for +/-0.015 
-    payload[3] = (compressed_outside_humidity) >> 4;  // 8 high-order bits
-    payload[4] +=(compressed_outside_humidity) << 8;  // 4 low-order bits
+    payload[2] = (compressed_outside_humidity) >> 4;  // 8 high-order bits
+    payload[3] +=(compressed_outside_humidity) << 8;  // 4 low-order bits
 
-    // 5️⃣ 1_HEX byte temperature compression
+    // 5️⃣ 1_HEX byte battery compression
     uint8_t compressed_battery_level = compress_2_HEX(battery_level * 10 / 4 );
-    payload[4] += (compressed_battery_level) >> 4;  // 4 high-order bits
-    payload[5] += (compressed_battery_level) << 4;  // 4 low-order bits
+    payload[3] += (compressed_battery_level) >> 4;  // 4 high-order bits
+    payload[4] += (compressed_battery_level) << 4;  // 4 low-order bits
 
     // 6️⃣ 1.5_HEX byte N_nutriment compression
     uint16_t compressed_soil_nutrients_N_Nitrogen = compress_3_HEX(soil_nutrients_N_Nitrogen); 
-    payload[5] += (compressed_soil_nutrients_N_Nitrogen) >> 8;  // 4 high-order bits
-    payload[6] =  (compressed_soil_nutrients_N_Nitrogen);       // 8 low-order bits
+    payload[4] += (compressed_soil_nutrients_N_Nitrogen) >> 8;  // 4 high-order bits
+    payload[5] =  (compressed_soil_nutrients_N_Nitrogen);       // 8 low-order bits
 
     // 7️⃣ 1.5_HEX byte P_nutriment compression
     uint16_t compressed_soil_nutrients_P_Phosphorus = compress_3_HEX(soil_nutrients_P_Phosphorus); 
-    payload[7] =  (compressed_soil_nutrients_P_Phosphorus) >> 4;  // 8 high-order bits
-    payload[8] += (compressed_soil_nutrients_P_Phosphorus) << 4;  // 4 low-order bits
+    payload[6] =  (compressed_soil_nutrients_P_Phosphorus) >> 4;  // 8 high-order bits
+    payload[7] += (compressed_soil_nutrients_P_Phosphorus) << 4;  // 4 low-order bits
 
     // 8️⃣ 1.5_HEX byte K_nutriment compression
     uint16_t compressed_soil_nutrients_K_Potassium = compress_3_HEX(soil_nutrients_K_Potassium); 
-    payload[8] += (compressed_soil_nutrients_K_Potassium) >> 8;  // 4 high-order bits
-    payload[9] =  (compressed_soil_nutrients_K_Potassium);       // 8 low-order bits
+    payload[7] += (compressed_soil_nutrients_K_Potassium) >> 8;  // 4 high-order bits
+    payload[8] =  (compressed_soil_nutrients_K_Potassium);       // 8 low-order bits
 
-    // 4️⃣ 1.5_HEX byte temperature compression
+    // 9️⃣ 1.5_HEX byte temperature compression
     uint16_t compressed_surface_temperature = compress_3_HEX(surface_temperature*25); // *10 *2,5 for +/-0.015 
-    payload[10] += (compressed_surface_temperature) >> 4; // 8 high-order bits
-    payload[11] += (compressed_surface_temperature) << 4; // 4 low-order bits
+    payload[9] += (compressed_surface_temperature) >> 4; // 8 high-order bits
+    payload[10] += (compressed_surface_temperature) << 4; // 4 low-order bits
 
-    // 4️⃣ 1.5_HEX byte humidity compression
+    // 1️⃣0️⃣ 1.5_HEX byte humidity compression
     uint16_t compressed_surface_humidity = compress_3_HEX(surface_humidity*25); // *10 *2,5 for +/-0.015 
-    payload[11] = (compressed_surface_humidity) >> 8;  // 4 high-order bits
-    payload[12] +=(compressed_surface_humidity);       // 8 low-order bits
+    payload[10] += (compressed_surface_humidity) >> 8; // 4 high-order bits
+    payload[11] =  (compressed_surface_humidity);      // 8 low-order bits
 
-    // 4️⃣ 1.5_HEX byte temperature compression
+    // 1️⃣1️⃣ 1.5_HEX byte temperature compression
     uint16_t compressed_deep_temperature = compress_3_HEX(deep_temperature*25); // *10 *2,5 for +/-0.015 
-    payload[13] += (compressed_deep_temperature) >> 4;  // 4 high-order bits
-    payload[14] += (compressed_deep_temperature) << 4;  // 8 low-order bits
+    payload[12] += (compressed_deep_temperature) >> 4;  // 8 high-order bits
+    payload[13] += (compressed_deep_temperature) << 4;  // 4 low-order bits
 
-    // 4️⃣ 1.5_HEX byte humidity compression
+    // 1️⃣2️⃣ 1.5_HEX byte humidity compression
     uint16_t compressed_deep_humidity = compress_3_HEX(deep_humidity*25); // *10 *2,5 for +/-0.015 
-    payload[14] += (compressed_deep_humidity) >> 8;  // 8 high-order bits
-    payload[15] += (compressed_deep_humidity);       // 4 low-order bits
+    payload[13] += (compressed_deep_humidity) >> 8;  // 4 high-order bits
+    payload[14] += (compressed_deep_humidity);       // 8 low-order bits
 
-    // 9️⃣ 1.5_HEX byte light compression
+    // 1️⃣3️⃣ 1.5_HEX byte light compression
     uint16_t compressed_light_intensity = compress_3_HEX(light_intensity/10); 
-    payload[16] += (compressed_light_intensity) >> 4;  // 4 high-order bits
-    payload[17] =  (compressed_light_intensity) << 4;   // 8 low-order bits
+    payload[15] += (compressed_light_intensity) >> 4;  // 4 high-order bits
+    payload[16] =  (compressed_light_intensity) << 4;  // 8 low-order bits
 
-    // 6️⃣ Fill the rest of the payload with 0x00 (padding up to 51 bytes)
-    for (int i = 17; i < 51; i++) 
+    // 1️⃣4️⃣ 2 HEX SIGNED temperature compression
+    int16_t compressed_outside_temperature = round(outside_temperature * 100);
+    payload[17] = (compressed_outside_temperature >> 8);   // 8 high-order bits
+    payload[18] = (compressed_outside_temperature);        // 8 low-order bits
+
+    // 1️⃣6️⃣ Fill the rest of the payload with 0x00 (padding up to 51 bytes)
+    for (int i = 19; i < NB_BITS; i++) 
     {
         payload[i] = 0x00;
     }
 
-    // 7️⃣ Debug print payload 
+    // 1️⃣7️⃣ Debug print payload 
     Serial.println();  // Empty line for better readability
     Serial.println();  // Empty line for better readability
     Serial.print("Sending LoRa -> Payload: ");
-    for (int i = 0; i < 51; i++) 
+    for (int i = 0; i < NB_BITS; i++) 
     {
         if (payload[i] < 0x10) Serial.print("0");  // Format hex on 2 characters
         Serial.print(payload[i], HEX);
         Serial.print(" ");
     }
 
-    int err = 0;  // Initialize error flag
+    // 1️⃣8️⃣ Keep trying until message is sent successfully
+    int attempt = 0;
+    int err = 0; // Initialize error flag
 
-    // 8️⃣ Keep trying until message is sent successfully
-    do 
-    {
+    do {
         Serial.println("\nAttempting to send LoRa message...");
-
+        
         MKR1013modem.beginPacket();
         MKR1013modem.write(payload, sizeof(payload));
         err = MKR1013modem.endPacket(true);  // ❌ FIXED: Removed extra 'int'
 
-        if (err > 0) 
-        {
+        if (err > 0) {
             Serial.println("✅ Message sent successfully!");
-        } 
-        else 
-        {
+            break;  // Sortir de la boucle si l'envoi réussit
+        } else {
             Serial.println("❌ Error while sending, PLEASE check antenna, enough Monsieur Inaf !");
             delay(5000);  // Wait 5 seconds before retrying
+            attempt++;
         }
-    } while (err <= 0);  // Retry until err > 0
+    } while (attempt < MAX_ATTEMPTS);  // Limite le nombre d'essais à MAX_ATTEMPTS
+
+    if (attempt == MAX_ATTEMPTS && err <= 0) {
+        Serial.println("❌ Maximum attempts reached. Message could not be sent.");
+    }
 }
 
 void LoraUnitShipment (float value)  // For debuging

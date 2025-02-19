@@ -21,7 +21,7 @@ void loop()
 {
     // Exemple d envoi de temperature (environ 38.9°C)
     uint8_t mux_code = 0x1; //Sending 1 data
-    float outside_temperature = 11.58; //°C
+    float outside_temperature = -71.5865; //°C
     float outside_humidity = 49.85423; //%
     float outside_CO2 = 3220.53; //ppm
 
@@ -38,18 +38,18 @@ void loop()
 
     float light_intensity = 13929.928; //Lux
 
-    for (float ii = 0; ii < 10; ii+=0.1) 
+    for (int ii = 0; ii < 100; ii++) 
     {
         if (online_mode == 0 ) 
             {
             //Simulation mode (off line)
-            compress_2_HEX ((ii + 20)*5);
-            compress_3_HEX (ii*11);
+            compress_2_HEX (((ii/10) + 20)*5);
+            compress_3_HEX ((ii/10)*11);
             }
         else
             {
             //Real mode (online)
-            Send_LoRa_Data(mux_code, 20 + ii, outside_CO2, outside_humidity, battery_level,
+            Send_LoRa_Data(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
             soil_nutrients_N_Nitrogen, soil_nutrients_P_Phosphorus, soil_nutrients_K_Potassium,
             surface_temperature, surface_humidity,
             deep_temperature, deep_humidity,

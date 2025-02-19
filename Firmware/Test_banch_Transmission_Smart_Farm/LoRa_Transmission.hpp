@@ -2,6 +2,7 @@
 #define LORA_TRANSMISSION_HPP
 
 #include <MKRWAN.h>
+#define MAX_ATTEMPTS 5
 
 // Déclaration des fonctions
 void initializeLoRa();
