@@ -3,6 +3,8 @@
 
 LoRaModem MKR1013modem;
 
+FlashStorage(storage, Late_Payload_Flash_Data);
+
 void initializeLoRa() 
 {
     #if TEST_MODE
@@ -88,6 +90,88 @@ uint16_t compress_3_HEX(float no_compressed)
     return truncatedTemp;
 }
 
+bool sendPayload(uint8_t *payload) 
+{
+    #if TEST_MODE
+        Serial.println("TEST MODE: Payload transmission simulated.");
+        return true;  // Simulate successful transmission in test mode
+    #else
+        MKR1013modem.beginPacket();
+        MKR1013modem.write(payload, NB_BITS_PAYLOAD);
+        int err = MKR1013modem.endPacket(true);
+
+        if (err == 1) 
+        {
+            return true;
+        } 
+        else 
+        {
+            //Serial.println("Error sending payload. Code: " + String(err));
+            return false;
+        }
+    #endif
+}
+
+void storePayload(uint8_t *payload) 
+{
+    Late_Payload_Flash_Data data;
+    memcpy(data.payload, payload, NB_BITS_PAYLOAD);
+    storage.write(data);
+    #if TEST_MODE
+        Serial.println("Payload stored in Flash.");
+    #endif
+}
+
+void clearFlash() 
+{
+    Late_Payload_Flash_Data emptyData = {0}; // Fills the array with zeros
+    storage.write(emptyData);
+    #if TEST_MODE
+        Serial.println("Flash memory cleared.");
+    #endif
+}
+
+bool retrySendingStoredPayload() 
+{
+    #if TEST_MODE
+        Serial.println("Checking Flash memory for unsent data...");
+    #endif
+    // Read stored payload from Flash
+    Late_Payload_Flash_Data data = storage.read();
+
+    // Check if the Flash memory contains valid data
+    if (data.payload[0] == 0) 
+    {
+        #if TEST_MODE
+            Serial.println("No pending data in Flash.");
+        #endif
+        return true;  // Nothing to send, return success
+    }
+    #if TEST_MODE
+    Serial.println("Unsent data found. Retrying transmission...");
+    #endif
+
+    // Attempt to resend data up to MAX_ATTEMPTS times
+    for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) 
+    {
+        #if TEST_MODE
+            Serial.print("Attempt ");
+            Serial.print(attempt);
+            Serial.println("...");
+            Serial.println("TEST MODE: Simulating payload transmission.");
+        #else
+            if (sendPayload(data.payload)) 
+            {
+                clearFlash();  // Clear Flash after successful transmission
+                return true;  // Successfully sent
+            }
+            delay(5000);  // Wait before retrying 5 sec
+        #endif
+    }
+    return false;  // Transmission failed
+}
+
+
 void Send_LoRa_Data
 (
     uint8_t mux_code, 
@@ -99,8 +183,7 @@ void Send_LoRa_Data
     float light_intensity
 ) 
 {
-    uint8_t NB_BITS = 20;
-    uint8_t payload[NB_BITS] = {0};
+    uint8_t payload[NB_BITS_PAYLOAD] = {0};
 
     // 1️⃣ Add mux_code (1 byte)
     payload[0] = mux_code << 4;
@@ -171,12 +254,12 @@ void Send_LoRa_Data
     payload[18] = (compressed_outside_temperature);        // 8 low-order bits
 
     // 1️⃣6️⃣ Fill the rest of the payload with 0x00 (padding up to 51 bytes)
-    for (int i = 19; i < NB_BITS; i++) payload[i] = 0x00;
+    for (int i = 19; i < NB_BITS_PAYLOAD; i++) payload[i] = 0x00;
 
     // 1️⃣7️⃣ Debug print payload 
     #if TEST_MODE
         Serial.print("\nSending LoRa -> Payload: ");
-        for (int i = 0; i < NB_BITS; i++) 
+        for (int i = 0; i < NB_BITS_PAYLOAD; i++) 
         {
             if (payload[i] < 0x10) Serial.print("0");
             Serial.print(payload[i], HEX);
@@ -206,7 +289,7 @@ void Send_LoRa_Data
             #if TEST_MODE
                 Serial.println("❌ Sending error, check antenna!");
             #endif
-            delay(7000); // ~10 sec
+            delay(10000); // 10 sec
             attempt++;
         }
     } while (attempt < MAX_ATTEMPTS);
@@ -217,6 +300,7 @@ void Send_LoRa_Data
             Serial.println("❌ Max attempts reached. Message failed.");
         }
     #endif
+    storePayload(payload);
 }
 
 void LoraUnitShipment(float value) 

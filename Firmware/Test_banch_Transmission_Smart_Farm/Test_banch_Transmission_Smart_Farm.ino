@@ -37,15 +37,18 @@ void loop()
             compress_3_HEX((ii / 10) * 11);
             delay(10000); // 1ooo = 1s => 10ooo = 10s
         #else
+            bool Failure_Check = retrySendingStoredPayload(); // Check for sending failure
             // Real mode (online)
-            Send_LoRa_Data(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
+            if (Failure_Check)
+            {
+                Send_LoRa_Data(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
                            soil_nutrients_N_Nitrogen, soil_nutrients_P_Phosphorus, soil_nutrients_K_Potassium,
                            surface_temperature, surface_humidity,
                            deep_temperature, deep_humidity,
                            light_intensity);
-
+            }
             // LowPower.sleep(20000);  // Put the microcontroller into sleep mode for 20 seconds BUT NEEDS a wake-up module or RTC timer
-            delay(200000);  // Comply with transmission constraints (200,000 ms = 3.33 min)
+            delay(10000);  // Comply with transmission constraints (200,000 ms = 3.33 min)
         #endif
 
         
