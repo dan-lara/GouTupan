@@ -3,8 +3,9 @@
 
 #include <MKRWAN.h>
 #define MAX_ATTEMPTS 5
+#define TEST_MODE 0     // Set to 1 to enable Serial Monitor debugging, 0 to disable
 
-// Déclaration des fonctions
+// Declaration of functions
 void initializeLoRa();
 void LoraUnitShipment(float value);
 void Send_LoRa_Data(

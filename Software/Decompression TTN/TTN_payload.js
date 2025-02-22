@@ -2,42 +2,42 @@ function decodeUplink(input)
 {
     let mux_code = input.bytes[0] >> 4;
     
-    // Associer un nom au mux_code
+    // Assign a name to the mux_code
     let mux_label = "";
     switch (mux_code) {
         case 1:
             mux_label = "Reading_1_data";
             let outside_temperature = (input.bytes[17] << 8) | (input.bytes[18]);
 
-            // Vérifier si le nombre est négatif
-            if (outside_temperature & 0x8000) {  // Si le bit de poids fort est à 1 (nombre négatif)
-                outside_temperature -= 0x10000; // Convertir en nombre signé
+            // Check if the number is negative
+            if (outside_temperature & 0x8000) {  // If the most significant bit is 1 (negative number)
+                outside_temperature -= 0x10000; // Convert to signed number
             }
             
-            outside_Temperature = outside_temperature / 100;  // Diviser pour obtenir la température en degrés
+            outside_Temperature = outside_temperature / 100;  // Divide to get the temperature in degrees
             
-            let outside_CO2 = ((input.bytes[0] & 0x0F) << 8) + (input.bytes[1] );  // Reconvertir le CO2
-            let outside_Humidity = (((input.bytes[2]) << 4) + (input.bytes[3] & 0xF0 ))/25;  // Converting back humidity 
+            let outside_CO2 = ((input.bytes[0] & 0x0F) << 8) + (input.bytes[1]);  // Convert CO2 back
+            let outside_Humidity = (((input.bytes[2]) << 4) + (input.bytes[3] & 0xF0 )) / 40;  // Convert humidity back 
             
-            let battery_level = (((input.bytes[3] & 0x0F) << 4) | ((input.bytes[4] >> 4))) /2.5;
+            let battery_level = (((input.bytes[3] & 0x0F) << 4) | ((input.bytes[4] >> 4))) / 2.5;
             
             let soil_nutrients_N_Nitrogen = (((input.bytes[4] & 0x0F) << 8) + (input.bytes[5]));
             let soil_nutrients_P_Phosphorus = (((input.bytes[6] & 0x0F) << 8) + (((input.bytes[7]) & 0xF0) >> 4));
             let soil_nutrients_K_Potassium = (((input.bytes[7] & 0x0F) << 8) + input.bytes[8]);
 
             
-            let surface_temperature = (((input.bytes[9]) << 4) + (((input.bytes[10] & 0xF0)>> 4)))/25; 
-            let surface_humidity = ((((input.bytes[10] & 0x0F)) << 8) + ((input.bytes[11])))/25;
+            let surface_temperature = (((input.bytes[9]) << 4) + (((input.bytes[10] & 0xF0) >> 4))) / 40; 
+            let surface_humidity = ((((input.bytes[10] & 0x0F)) << 8) + ((input.bytes[11]))) / 40;
             
-            let deep_temperature = (((input.bytes[12]) << 4 )+ ((input.bytes[13] & 0xF0)>> 4))/25; 
-            let deep_humidity = ((((input.bytes[13] & 0x0F)) << 8) + ((input.bytes[14])))/25;
+            let deep_temperature = (((input.bytes[12]) << 4 ) + ((input.bytes[13] & 0xF0) >> 4)) / 40; 
+            let deep_humidity = ((((input.bytes[13] & 0x0F)) << 8) + ((input.bytes[14]))) / 40;
             
-            let light_intensity = (((input.bytes[15]) << 4 )+ ((input.bytes[16] & 0xF0)>> 4))*10; 
+            let light_intensity = (((input.bytes[15]) << 4 ) + ((input.bytes[16] & 0xF0) >> 4)) * 10; 
              
              
             return {
               data: {
-                  Mux_Code: mux_label,  // Nom du Mux_Code
+                  Mux_Code: mux_label,  // Mux_Code name
                   
                   Outside_Temperature: outside_Temperature,
                   Outside_CO2: outside_CO2,
@@ -71,7 +71,7 @@ function decodeUplink(input)
 
     return {
         data: {
-            Mux_Code: mux_label,  // Nom du Mux_Code
+            Mux_Code: mux_label,  // Mux_Code name
         }
     };
 }

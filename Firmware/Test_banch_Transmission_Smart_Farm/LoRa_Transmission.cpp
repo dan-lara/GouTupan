@@ -5,79 +5,91 @@ LoRaModem MKR1013modem;
 
 void initializeLoRa() 
 {
-    Serial.begin(115200);
-    while (!Serial);
-
-    Serial.println("\nDémarrage du module LoRa...");
+    #if TEST_MODE
+        Serial.begin(115200);
+        while (!Serial);
+        Serial.println("\nStarting LoRa module...");
+    #endif
   
     if (!MKR1013modem.begin(EU868)) 
     {
-        Serial.println("Échec de démarrage du module LoRa !");
+        #if TEST_MODE
+            Serial.println("LoRa module startup failed!");
+        #endif
         while (1);
     }
 
-    Serial.print("Version du firmware : ");
-    Serial.println(MKR1013modem.version());
+    #if TEST_MODE
+        Serial.print("Firmware version: ");
+        Serial.println(MKR1013modem.version());
 
-    Serial.print("Device EUI : ");
-    Serial.println(MKR1013modem.deviceEUI());
+        Serial.print("Device EUI: ");
+        Serial.println(MKR1013modem.deviceEUI());
 
-    Serial.println("Connexion au réseau TTN...");
+        Serial.println("Connecting to TTN...");
+    #endif
+
     int connected = MKR1013modem.joinOTAA(APPEUI, APPKEY);
 
     if (!connected) 
     {
-        Serial.println("Échec de connexion ! Vérifiez votre signal et réessayez.");
+        #if TEST_MODE
+            Serial.println("Connection failed! Check your signal and retry.");
+        #endif
         while (1);
     }
 
-    Serial.println("Connecté à TTN !");
+    #if TEST_MODE
+        Serial.println("Connected to TTN!");
+        Serial.println("\n⚙️ Data Compression Precision :");
+        Serial.println("Outside Temperature ±0.01/2°C  |  Outside CO2 ±0.5 ppm  |  Outside Humidity ±0.025/2 %");
+        Serial.println("Battery Level ±0.2%");
+        Serial.println("NPK ±0.5 ppm  |  Surface Humidity ±0.025/2 %  |  Surface Temperature ±0.025/2 °C ");
+        Serial.println("Deep Temperature ±0.025/2 °C  |  Deep Humidity ±0.025/2 %");
+        Serial.println("Lux Sensor ±5 lux");
+        Serial.println();  // Empty line for better readability
+    #endif
+
     MKR1013modem.minPollInterval(60);
 }
 
-// Fonction pour compresser la température
-uint8_t compress_2_HEX (float value) 
+uint8_t compress_2_HEX(float value) 
 {
-    // Round the value to the nearest integer
     float truncatedValue = round(value);
-
-    // Convert to an integer (remove decimal part)
     uint16_t intValue = (uint16_t)truncatedValue;
+    uint8_t compressedValue = (uint8_t)min(intValue, 405);
 
-    // Convert to uint8_t (8 bits) with saturation if exceeding the limit
-    uint8_t compressedValue = (uint8_t)min(intValue, 255);
-
-    // Debug: Print the compression process
-    Serial.print("Original value: ");
-    Serial.print(value);
-    Serial.print(" -> Rounded: ");
-    Serial.print(intValue);
-    Serial.print(" -> Compressed: 0x");
-    if (compressedValue < 0x10) Serial.print("0"); // Ensure 2-character HEX format
-    Serial.println(compressedValue, HEX);
+    #if TEST_MODE
+        Serial.print("Original value: ");
+        Serial.print(value);
+        Serial.print(" -> Rounded: ");
+        Serial.print(intValue);
+        Serial.print(" -> Compressed: 0x");
+        if (compressedValue < 0x10) Serial.print("0");
+        Serial.println(compressedValue, HEX);
+    #endif
 
     return compressedValue;
 }
 
-
-// Fonction pour compresser la température
 uint16_t compress_3_HEX(float no_compressed) 
 {
-    // Round data
     uint16_t truncatedTemp = round(no_compressed);
 
-    // Affichage dans le Serial Monitor
-    Serial.print("Original data : ");
-    Serial.print(no_compressed);
-    Serial.print(" -> Compressed : 0x");
-    if (truncatedTemp < 0x10) Serial.print("0"); // Add "O" for have 2nd char
-    if (truncatedTemp < 0x100) Serial.print("0"); // Add "O" for have 3rd char
-    Serial.println(truncatedTemp, HEX);
+    #if TEST_MODE
+        Serial.print("Original data: ");
+        Serial.print(no_compressed);
+        Serial.print(" -> Compressed: 0x");
+        if (truncatedTemp < 0x10) Serial.print("0");
+        if (truncatedTemp < 0x100) Serial.print("0");
+        Serial.println(truncatedTemp, HEX);
+    #endif
 
     return truncatedTemp;
 }
 
-void Send_LoRa_Data(
+void Send_LoRa_Data
+(
     uint8_t mux_code, 
     float outside_temperature, float outside_CO2, float outside_humidity, 
     float battery_level, 
@@ -85,21 +97,12 @@ void Send_LoRa_Data(
     float surface_temperature, float surface_humidity, 
     float deep_temperature, float deep_humidity,
     float light_intensity
-)
+) 
 {
-    // 0️⃣ Data Compression Precision
-    Serial.println("⚙️ Data Compression Precision : ");
-    Serial.println("Outside Temperature ±0.01°C  |  Outside CO2 ±0.5 ppm  |  Outside Humidity ±0.015%");
-    Serial.println("Battery Level ±0.2%");
-    Serial.println("NPK ±0.5 ppm  |  Surface Humidity ±0.015%  |  Surface Temperature ±0.015°C ");
-    Serial.println("Deep Temperature ±0.015°C  |  Deep Humidity ±0.015%");
-    Serial.println("Lux Sensor ±5 lux");
-    Serial.println();  // Empty line for better readability
-    
     uint8_t NB_BITS = 20;
-    uint8_t payload[NB_BITS] = {0};  // Initialize payload array
+    uint8_t payload[NB_BITS] = {0};
 
-    // 1️⃣ Add `mux_code` (1 byte)
+    // 1️⃣ Add mux_code (1 byte)
     payload[0] = mux_code << 4;
 
     // 2️⃣ 1_HEX byte temperature compression
@@ -113,9 +116,9 @@ void Send_LoRa_Data(
     payload[1] =  (compressed_outside_CO2);       // 8 low-order bits
 
     // 4️⃣ 1.5_HEX byte humidity compression
-    uint16_t compressed_outside_humidity = compress_3_HEX(outside_humidity*25); // *10 *2,5 for +/-0.015 
+    uint16_t compressed_outside_humidity = compress_3_HEX(outside_humidity*40); // *10 *2,5 for +/- 1/40 = 0.025 
     payload[2] = (compressed_outside_humidity) >> 4;  // 8 high-order bits
-    payload[3] +=(compressed_outside_humidity) << 8;  // 4 low-order bits
+    payload[3] +=(compressed_outside_humidity) << 4;  // 4 low-order bits
 
     // 5️⃣ 1_HEX byte battery compression
     uint8_t compressed_battery_level = compress_2_HEX(battery_level * 10 / 4 );
@@ -138,22 +141,22 @@ void Send_LoRa_Data(
     payload[8] =  (compressed_soil_nutrients_K_Potassium);       // 8 low-order bits
 
     // 9️⃣ 1.5_HEX byte temperature compression
-    uint16_t compressed_surface_temperature = compress_3_HEX(surface_temperature*25); // *10 *2,5 for +/-0.015 
+    uint16_t compressed_surface_temperature = compress_3_HEX(surface_temperature*40); // *10 *2,5 for +/- 1/40 = 0.025 
     payload[9] += (compressed_surface_temperature) >> 4; // 8 high-order bits
     payload[10] += (compressed_surface_temperature) << 4; // 4 low-order bits
 
     // 1️⃣0️⃣ 1.5_HEX byte humidity compression
-    uint16_t compressed_surface_humidity = compress_3_HEX(surface_humidity*25); // *10 *2,5 for +/-0.015 
+    uint16_t compressed_surface_humidity = compress_3_HEX(surface_humidity*40); // *10 *2,5 for +/- 1/40 = 0.025 
     payload[10] += (compressed_surface_humidity) >> 8; // 4 high-order bits
     payload[11] =  (compressed_surface_humidity);      // 8 low-order bits
 
     // 1️⃣1️⃣ 1.5_HEX byte temperature compression
-    uint16_t compressed_deep_temperature = compress_3_HEX(deep_temperature*25); // *10 *2,5 for +/-0.015 
+    uint16_t compressed_deep_temperature = compress_3_HEX(deep_temperature*40); // *10 *2,5 for +/- 1/40 = 0.025 
     payload[12] += (compressed_deep_temperature) >> 4;  // 8 high-order bits
     payload[13] += (compressed_deep_temperature) << 4;  // 4 low-order bits
 
     // 1️⃣2️⃣ 1.5_HEX byte humidity compression
-    uint16_t compressed_deep_humidity = compress_3_HEX(deep_humidity*25); // *10 *2,5 for +/-0.015 
+    uint16_t compressed_deep_humidity = compress_3_HEX(deep_humidity*40); // *10 *4 for +/- 1/40 = 0.025 
     payload[13] += (compressed_deep_humidity) >> 8;  // 4 high-order bits
     payload[14] += (compressed_deep_humidity);       // 8 low-order bits
 
@@ -168,73 +171,73 @@ void Send_LoRa_Data(
     payload[18] = (compressed_outside_temperature);        // 8 low-order bits
 
     // 1️⃣6️⃣ Fill the rest of the payload with 0x00 (padding up to 51 bytes)
-    for (int i = 19; i < NB_BITS; i++) 
-    {
-        payload[i] = 0x00;
-    }
+    for (int i = 19; i < NB_BITS; i++) payload[i] = 0x00;
 
     // 1️⃣7️⃣ Debug print payload 
-    Serial.println();  // Empty line for better readability
-    Serial.println();  // Empty line for better readability
-    Serial.print("Sending LoRa -> Payload: ");
-    for (int i = 0; i < NB_BITS; i++) 
-    {
-        if (payload[i] < 0x10) Serial.print("0");  // Format hex on 2 characters
-        Serial.print(payload[i], HEX);
-        Serial.print(" ");
-    }
+    #if TEST_MODE
+        Serial.print("\nSending LoRa -> Payload: ");
+        for (int i = 0; i < NB_BITS; i++) 
+        {
+            if (payload[i] < 0x10) Serial.print("0");
+            Serial.print(payload[i], HEX);
+            Serial.print(" ");
+        }
+        Serial.println();
+    #endif
 
-    // 1️⃣8️⃣ Keep trying until message is sent successfully
-    int attempt = 0;
-    int err = 0; // Initialize error flag
-
+    int attempt = 0, err = 0;
     do {
-        Serial.println("\nAttempting to send LoRa message...");
-        
+        #if TEST_MODE
+            Serial.println("\nAttempting to send LoRa message...");
+        #endif
         MKR1013modem.beginPacket();
         MKR1013modem.write(payload, sizeof(payload));
-        err = MKR1013modem.endPacket(true);  // ❌ FIXED: Removed extra 'int'
-
-        if (err > 0) {
-            Serial.println("✅ Message sent successfully!");
-            break;  // Sortir de la boucle si l'envoi réussit
-        } else {
-            Serial.println("❌ Error while sending, PLEASE check antenna, enough Monsieur Inaf !");
-            delay(5000);  // Wait 5 seconds before retrying
-            attempt++;
-        }
-    } while (attempt < MAX_ATTEMPTS);  // Limite le nombre d'essais à MAX_ATTEMPTS
-
-    if (attempt == MAX_ATTEMPTS && err <= 0) {
-        Serial.println("❌ Maximum attempts reached. Message could not be sent.");
-    }
-}
-
-void LoraUnitShipment (float value)  // For debuging
-{
-    // Compress the temperature before sending
-    uint8_t compressedTemp = compress_2_HEX(value);
-
-    int err = 0; // Initialize error flag
-
-    // Keep trying until message is sent successfully
-    do 
-    {
-        Serial.println("Attempting to send LoRa message...");
-
-        // Start LoRa packet
-        MKR1013modem.beginPacket();
-        MKR1013modem.write(compressedTemp);
         err = MKR1013modem.endPacket(true);
 
         if (err > 0) 
         {
-            Serial.println("✅ Sending successful !");
+            #if TEST_MODE
+                Serial.println("✅ Message sent successfully!");
+            #endif
+            break;
         } 
         else 
         {
-            Serial.println("⚠️ Error, check Antenna PLEASE ! Retrying ...");
-            delay(5000);  // Wait 5 seconds before retrying (adjust if needed)
+            #if TEST_MODE
+                Serial.println("❌ Sending error, check antenna!");
+            #endif
+            delay(7000); // ~10 sec
+            attempt++;
         }
-    } while (err <= 0); // Retry until err > 0
+    } while (attempt < MAX_ATTEMPTS);
+
+    #if TEST_MODE
+        if (attempt == MAX_ATTEMPTS && err <= 0) 
+        {
+            Serial.println("❌ Max attempts reached. Message failed.");
+        }
+    #endif
+}
+
+void LoraUnitShipment(float value) 
+{
+    uint8_t compressedTemp = compress_2_HEX(value);
+    int err = 0;
+
+    do 
+    {
+        #if TEST_MODE
+            Serial.println("Attempting to send LoRa message...");
+        #endif
+        MKR1013modem.beginPacket();
+        MKR1013modem.write(compressedTemp);
+        err = MKR1013modem.endPacket(true);
+
+        #if TEST_MODE
+            if (err > 0) Serial.println("✅ Sending successful!");
+            else Serial.println("⚠️ Error, check Antenna! Retrying...");
+        #endif
+
+        delay(10000);
+    } while (err <= 0);
 }
