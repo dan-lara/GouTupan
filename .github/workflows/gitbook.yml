@@ -16,7 +16,7 @@ jobs:
       - name: Checkout Wiki repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}.wiki.git  # Obtém a Wiki como repositório separado
+          repository: ${{ github.repository }}.wiki
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
