@@ -1,5 +1,7 @@
-#include <Wire.h>
+#include <Wire.h>   // Bibliothèque de communication I2C
 #include "Adafruit_TCS34725.h"
+
+// Sélectionner 3 broches PWM sur l'Arduino pour contrôler la LED RVB.
 // Pick analog outputs, for the UNO these three work well
 // use ~560  ohm resistor between Red & Blue, ~1K for green (its brighter)
 #define redpin 3
@@ -14,6 +16,7 @@
 // our RGB -> eye-recognized gamma color
 byte gammatable[256];
 
+// Initialiser le capteur de couleur TCS34725, définisser un temps d'intégration de 50 ms et un gain de 4x
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
 void setup() {
@@ -60,11 +63,12 @@ void loop() {
   tcs.getRawData(&red, &green, &blue, &clear);
 
   tcs.setInterrupt(true);  // turn off LED
-  
+  /*
   Serial.print("C:\t"); Serial.print(clear);
   Serial.print("\tR:\t"); Serial.print(red);
   Serial.print("\tG:\t"); Serial.print(green);
   Serial.print("\tB:\t"); Serial.print(blue);
+  */
   // Figure out some basic hex code for visualization
   uint32_t sum = clear;
   float r, g, b;
@@ -73,6 +77,10 @@ void loop() {
   b = blue; b /= sum;
   r *= 256; g *= 256; b *= 256;
   Serial.print("\t");
+  Serial.print("C:\t"); Serial.print(clear);
+  Serial.print("\tR:\t"); Serial.print(r);
+  Serial.print("\tG:\t"); Serial.print(g);
+  Serial.print("\tB:\t"); Serial.print(b);
   Serial.print((int)r, HEX); Serial.print((int)g, HEX); Serial.print((int)b, HEX);
   Serial.println();
 
