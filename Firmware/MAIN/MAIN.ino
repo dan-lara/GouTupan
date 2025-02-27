@@ -17,6 +17,12 @@ Adafruit_SCD30  scd30;
 SoilMoistureSensor_SEN0308 cap;
 SoilMoistureSensor_SEN0308 cap2;
 
+#include "BatteryManager.hpp"
+#define ANALOG_PIN A3
+#define CHARGE_PIN 7
+#define FAULT_PIN 6
+BatteryManager batman;
+
 void setup() 
 {
     if (!scd30.begin()) 
@@ -65,6 +71,8 @@ void setup()
         #endif
     }
 
+    batman.begin(ANALOG_PIN, CHARGE_PIN, FAULT_PIN);
+
     delay(2000);
 }
 
@@ -87,7 +95,13 @@ void loop()
         }
     }
 
-    float battery_level = 82.092; // %
+    //float voltage = batman.read(false);
+    //bool charging = batman.isCharging();
+    //bool fault = batman.isFault();
+
+    //float battery_level = batman.read(); // % Voltage
+    float battery_level = batman.read(false)*10; // % Voltage
+
     float soil_nutrients_N_Nitrogen = 198.29; // ppm
     float soil_nutrients_P_Phosphorus = 13.22; // ppm
     float soil_nutrients_K_Potassium = 287.99; // ppm
