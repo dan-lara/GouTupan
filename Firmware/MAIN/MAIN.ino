@@ -11,6 +11,11 @@ Adafruit_SCD30  scd30;
 #include "Baroleter_High_Accuracy.hpp"
 #include "ColorSensor.hpp"
 
+#include "DFRobot_SEN0308.hpp"
+#define SENSOR_PIN A1   //30cm
+#define SENSOR_PIN2 A2  //10cm
+SoilMoistureSensor_SEN0308 cap;
+SoilMoistureSensor_SEN0308 cap2;
 
 void setup() 
 {
@@ -31,6 +36,33 @@ void setup()
             Serial.println("ERROR: Color sensor not detected!");
         #endif
         while (1); // Stop execution if sensor is not detected
+    }
+
+    if (cap.begin(SENSOR_PIN)) 
+    {
+        #if TEST_MODE
+            Serial.println("Sensor initialized successfully.");
+        #endif
+    } 
+    else 
+    {
+        #if TEST_MODE
+            Serial.println("Failed to initialize sensor.");
+        #endif
+        while (1);
+    }
+    if (cap2.begin(SENSOR_PIN2)) 
+    {
+        #if TEST_MODE
+            Serial.println("Sensor initialized successfully.");
+        #endif
+    } 
+    else 
+    {
+        #if TEST_MODE
+            Serial.println("Failed to initialize sensor.");
+            while (1);
+        #endif
     }
 
     delay(2000);
@@ -61,15 +93,15 @@ void loop()
     float soil_nutrients_K_Potassium = 287.99; // ppm
 
     float surface_temperature = 8.58; // °C
-    float surface_humidity = 78.2723; // %
+    float surface_humidity = cap2.read(); // %
 
     float deep_temperature = 7.22; // °C
-    float deep_humidity = 87.0793; // %
+    float deep_humidity = cap.read(); // %
 
     float R_RGB, G_RGB, B_RGB, light_intensity;
 
     readAndNormalizeColor(&R_RGB, &G_RGB, &B_RGB, &light_intensity);
-    
+
     float light_infrared = 928.13; // Lux
     float light_ultraviolet = 1329.58; // Lux
 
