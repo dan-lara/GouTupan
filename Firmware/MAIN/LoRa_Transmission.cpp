@@ -95,23 +95,22 @@ uint16_t compress_3_HEX(float no_compressed)
 bool sendPayload(uint8_t *payload) 
 {
     #if TEST_MODE
-        Serial.println("TEST MODE: Payload transmission simulated.");
-        return true;  // Simulate successful transmission in test mode
-    #else
-        MKR1013modem.beginPacket();
-        MKR1013modem.write(payload, NB_BITS_PAYLOAD);
-        int err = MKR1013modem.endPacket(true);
-
-        if (err == 1) 
-        {
-            return true;
-        } 
-        else 
-        {
-            //Serial.println("Error sending payload. Code: " + String(err));
-            return false;
-        }
+        Serial.println("TEST MODE: Payload transmission trying to send back.");
     #endif
+
+    MKR1013modem.beginPacket();
+    MKR1013modem.write(payload, NB_BITS_PAYLOAD);
+    int err = MKR1013modem.endPacket(true);
+
+    if (err == 1) 
+    {
+        return true;
+    } 
+    else 
+    {
+        //Serial.println("Error sending payload. Code: " + String(err));
+        return false;
+    }
 }
 
 void storePayload(uint8_t *payload) 
@@ -161,14 +160,13 @@ bool retrySendingStoredPayload()
             Serial.print(attempt);
             Serial.println("...");
             Serial.println("TEST MODE: Simulating payload transmission.");
-        #else
-            if (sendPayload(data.payload)) 
-            {
-                clearFlash();  // Clear Flash after successful transmission
-                return true;  // Successfully sent
-            }
-            delay(5000);  // Wait before retrying 5 sec
         #endif
+        if (sendPayload(data.payload)) 
+        {
+            clearFlash();  // Clear Flash after successful transmission
+            return true;  // Successfully sent
+        }
+        delay(5000);  // Wait before retrying 5 sec
     }
     return false;  // Transmission failed
 }
