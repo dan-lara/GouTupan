@@ -55,3 +55,18 @@ Ce projet vise à fournir une **solution efficace, éco-responsable et accessibl
 ### Jump right in
 
 <table data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-cover data-type="files"></th><th data-hidden></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><strong>Hardware</strong></td><td>Create your first site</td><td></td><td></td><td><a href="getting-started/quickstart.md">quickstart.md</a></td></tr><tr><td><strong>Firmware</strong></td><td>Learn the basics of GitBook</td><td><a href=".gitbook/assets/Arduino-MKR-WAN-1310.webp">Arduino-MKR-WAN-1310.webp</a></td><td></td><td><a href="broken-reference">Broken link</a></td></tr><tr><td><strong>Transmission</strong></td><td>Share your docs online</td><td></td><td></td><td><a href="getting-started/publish-your-docs.md">publish-your-docs.md</a></td></tr><tr><td><strong>Website</strong></td><td></td><td></td><td></td><td></td></tr></tbody></table>
+
+
+### Les solution pour le serveur
+1. solution
+React : la bibilotheque 
+Nextjs : Pour le front end et le Back end
+shadcn : Pour UI. composants
+
+2. solution
+vue.js : le framework
+nuxt : Pour le front end et le Back end
+
+3.solution？
+Supabase+Vercel
+
