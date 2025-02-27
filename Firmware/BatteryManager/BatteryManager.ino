@@ -22,7 +22,7 @@ void loop() {
     Serial.print(voltage);
     Serial.println(" V");
 
-    voltage = batman.read(); // Percentage
+    voltage = batman.getPercentage(); // Percentage
     Serial.print("Percentage: ");
     Serial.print(voltage);
     Serial.println("%");

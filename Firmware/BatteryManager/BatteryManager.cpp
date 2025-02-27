@@ -35,7 +35,7 @@ float BatteryManager::read(bool percentage)
     #endif
 
     if (percentage){
-        return (voltage - MIN_VOLTAGE) * 100.0 / (MAX_VOLTAGE - MIN_VOLTAGE);
+        voltage = getPercentage();
     }
     return voltage;
 }
@@ -62,4 +62,13 @@ bool BatteryManager::isFault()
     #endif
 
     return fault;
+}
+
+float BatteryManager::getVoltage()
+{
+    return voltage;
+}
+float BatteryManager::getPercentage()
+{
+    return (voltage - MIN_VOLTAGE) / (MAX_VOLTAGE - MIN_VOLTAGE) * 100;
 }
