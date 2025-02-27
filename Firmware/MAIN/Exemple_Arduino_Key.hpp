@@ -1,7 +1,7 @@
 #ifndef ARDUINO_KEY
 #define ARDUINO_KEY
 
-#define MODULE 1  // Define module selection
+#define MODULE 2  // Define module selection
 #define APPEUI "XXXXXXXXXXXXXXXX"
 
 #if MODULE == 1  

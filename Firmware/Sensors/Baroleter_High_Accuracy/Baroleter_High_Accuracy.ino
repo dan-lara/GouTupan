@@ -1,22 +1,14 @@
 #include "Baroleter_High_Accuracy.hpp"
-
-HP20x barometer;  // Create sensor object
+#define TEST_MODE 1
 
 void setup() 
 {
-    Serial.begin(115200);
-    while (!Serial);  // Wait for serial connection
-
-    barometer.begin();
-
-    #if TEST_MODE
-        Serial.println("Sensor initialized successfully.");
-    #endif
+    setupBarometer();
 }
 
 void loop() 
 {
-    float pressure = barometer.readPressure();
+    float pressure = getPressure();
 
     #if TEST_MODE
         Serial.print("Pressure: ");
