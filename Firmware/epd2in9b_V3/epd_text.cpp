@@ -19,7 +19,7 @@ void EpdText::drawChar(int x, int y, char c) {
     if (x < 0 || x >= EPD_HEIGHT || y < 0 || y >= EPD_WIDTH) return;
 
     // 字体索引计算（0x20-0xFF映射到0-223）
-    uint8_t font_index = static_cast<uint8_t>(c) - 0x20;
+    uint8_t font_index = static_cast<uint8_t>(c) - 0x21;
     if (font_index >= 224) return;
 
     for (int j = 0; j < CHAR_HEIGHT; j++) {
@@ -27,23 +27,24 @@ void EpdText::drawChar(int x, int y, char c) {
         for (int i = 0; i < CHAR_WIDTH; i++) {
             if (line & (0x80 >> i)) {
                 // 坐标旋转：文字沿长边（296px）方向显示
-                int px = x + j;                // 长边方向（Y轴）
-                int py = EPD_WIDTH - 1 - (y + i); // 宽边方向（X轴），从右向左
+                int px = x + j;         // 长边方向（Y轴）
+                //int py = y + i;         // 宽边方向（X轴），从左向右
+                int py = EPD_WIDTH - 1 - (y + i); 
                 
                 // 计算缓冲区位置
                 int byteIndex = (py / 8) + (px * (EPD_WIDTH / 8));
                 uint8_t bitMask = 0x80 >> (py % 8);
-                _buffer[byteIndex] &= ~bitMask;
+                _buffer[byteIndex] &= ~bitMask;  // 将对应位设置为 0（黑色）
             }
         }
     }
 }
 
 void EpdText::newlineHandler(int &x, int &y) {
-    x += CHAR_HEIGHT + LINE_SPACING; // 沿长边换行
-    y = 0;
-    if (x + CHAR_HEIGHT > EPD_HEIGHT) {
-        x = 0;  // 触底重置
+    y += CHAR_HEIGHT + LINE_SPACING; // 沿宽边换行
+    x = 0;
+    if (x + CHAR_HEIGHT > EPD_WIDTH) {
+        y = 0;  // 触底重置
         clear();
     }
 }
@@ -60,9 +61,10 @@ void EpdText::displayText(const char* text) {
         }
 
         drawChar(currentX, currentY, *text);
-        currentY += CHAR_WIDTH;
+        currentX += CHAR_WIDTH;
 
-        if (currentY + CHAR_WIDTH > EPD_WIDTH) {
+        // 检查下一个字符是否会越界
+        if (currentX + CHAR_WIDTH > EPD_HEIGHT) {
             newlineHandler(currentX, currentY);
         }
 
