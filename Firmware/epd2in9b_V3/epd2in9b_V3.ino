@@ -27,13 +27,31 @@
 #include <SPI.h>
 #include "epd2in9b_V3.h"
 #include "imagedata.h"
+#include "epd_text.h"
 
 Epd epd;
+EpdText epdText(epd);
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  delay(2000);
+
+  if (epd.Init() != 0) {
+      Serial.print("e-Paper init failed\r\n ");
+      return;
+  }
   Serial.print("2.9inch b V3 e-Paper init \r\n ");
+  delay(1000);
+  //epdText.updateDisplay(25.5, 40.2); // 示例数据
+  // epdText.displayText("AABCDEFG\n1123456"); // 检查换行和长边方向
+
+  //delay(2000);
+  epd.Clear();
+  /*
+  // Exemple de contenu du programme
+  Serial.print("2.9inch b V3 e-Paper init \r\n ");
+  epd.Reset();
   if (epd.Init() != 0) {
       Serial.print("e-Paper init failed\r\n ");
       return;
@@ -47,8 +65,10 @@ void setup() {
     
   delay(2000);
   epd.Clear();
+  */
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+
 }

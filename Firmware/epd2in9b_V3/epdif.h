@@ -1,3 +1,7 @@
+
+
+
+
 /**
  *  @filename   :   epdif.h
  *  @brief      :   Header file of epdif.cpp providing EPD interface functions
@@ -31,11 +35,12 @@
 #include <Arduino.h>
 
 // Pin definition
-#define RST_PIN         8
-#define DC_PIN          9
-#define CS_PIN          10
-#define BUSY_PIN        7
-#define PWR_PIN         6
+#define BUSY_PIN        4 // Purple (BUSY -> 4)
+#define RST_PIN         5 // White  (RST -> 5)
+#define DC_PIN          6 // Green  (DC -> 6)
+#define CS_PIN          7 // Oringe (CS -> 7)
+#define PWR_PIN         8 // Blue   (DIN -> MOSI)
+//                      9 // Yellow (CLK -> SCK)
 
 class EpdIf {
 public:
