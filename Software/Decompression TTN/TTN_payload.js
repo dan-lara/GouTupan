@@ -10,9 +10,10 @@ function decodeUplink(input)
             let outside_temperature = (input.bytes[17] << 8) | (input.bytes[18]);
 
             // Check if the number is negative
-            if (outside_temperature & 0x8000) {  // If the most significant bit is 1 (negative number)
+            if (outside_temperature & 0x8000) 
+                {  // If the most significant bit is 1 (negative number)
                 outside_temperature -= 0x10000; // Convert to signed number
-            }
+                }
             
             outside_Temperature = outside_temperature / 100;  // Divide to get the temperature in degrees
             
@@ -41,6 +42,18 @@ function decodeUplink(input)
             let g_RGB = (input.bytes[23]);
             let b_RGB = (input.bytes[24]); 
 
+            let outside_O2 = 945;
+            let outside_NH3 = 70.41;
+            let outside_CO = 91.6;
+            let outside_NO2 = 23.83;
+            let outside_C3H8 = 70.41;
+            let outside_C4H10 = 24.9;
+            let outside_CH4 = 109.96;
+            let outside_H2 = 24.9;
+            let outside_C2H50H = 83.98;
+
+            let outside_air_quality = 0;
+
             let pressure = (((input.bytes[25]) << 4 ) + ((input.bytes[26] & 0xF0) >> 4)) / 3; 
 
             return {
@@ -48,8 +61,20 @@ function decodeUplink(input)
                     Mux_Code: mux_label,  // Mux_Code name
                     
                     Outside_Temperature: outside_Temperature,
-                    Outside_CO2: outside_CO2,
                     Outside_Humidity: outside_Humidity,
+
+                    Outside_CO2: outside_CO2,
+                    Outside_O2 : outside_O2,
+                    Outside_NH3 : outside_NH3,
+                    Outside_CO : outside_CO,
+                    Outside_NO2 : outside_NO2,
+                    Outside_C3H8 : outside_C3H8,
+                    Outside_C4H10 : outside_C4H10,
+                    Outside_CH4 : outside_CH4,
+                    Outside_H2 : outside_H2,
+                    Outside_C2H50H : outside_C2H50H,
+                    
+                    Outside_Air_Quality : outside_air_quality,
                     
                     Battery_Level: battery_level,
                     
