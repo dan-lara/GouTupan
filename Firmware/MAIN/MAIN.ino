@@ -143,6 +143,6 @@ void loop()
                     pressure);
     //}
     // LowPower.sleep(20000);  // Put the microcontroller into sleep mode for 20 seconds BUT NEEDS a wake-up module or RTC timer
-    delay(8000);  // Comply with transmission constraints (200,000 ms = 3.33 min)
+    delay(60000);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
         
 }
