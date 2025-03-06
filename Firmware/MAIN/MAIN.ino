@@ -23,10 +23,21 @@ SoilMoistureSensor_SEN0308 cap2;
 #define FAULT_PIN 6
 BatteryManager batman;
 
+#include "Multi_Gaz.hpp"
+
+#define TEST_MODE 0 
+
 void setup() 
 {
+    #if TEST_MODE
+        Serial.begin(115200);
+        Serial.println("START");
+    #endif
     if (!scd30.begin()) 
         {
+            #if TEST_MODE
+              Serial.println("ERROR: CO2 sensor not detected!");
+            #endif
             while (1) { delay(1000); }
         }
     initializeLoRa();
@@ -72,6 +83,7 @@ void setup()
     }
 
     batman.begin(ANALOG_PIN, CHARGE_PIN, FAULT_PIN);
+    setupGasSensor();
 
     delay(2000);
 }
@@ -120,6 +132,10 @@ void loop()
     float light_ultraviolet = 1329.58; // Lux
 
     float pressure = getPressure();
+
+    float nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh;
+    readGasValues(&nh3, &co, &no2, &c3h8, &c4h10, &ch4, &h2, &c2h5oh);
+    
     
     delay(2000);
 
@@ -140,9 +156,10 @@ void loop()
                     deep_temperature, deep_humidity,
                     light_intensity, light_infrared, light_ultraviolet,
                     R_RGB, G_RGB, B_RGB,
-                    pressure);
+                    pressure,
+                    nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh);
     //}
     // LowPower.sleep(20000);  // Put the microcontroller into sleep mode for 20 seconds BUT NEEDS a wake-up module or RTC timer
-    delay(60000);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
+    delay(10000);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
         
 }

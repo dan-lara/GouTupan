@@ -42,19 +42,20 @@ function decodeUplink(input)
             let g_RGB = (input.bytes[23]);
             let b_RGB = (input.bytes[24]); 
 
+            let pressure = Math.round((((input.bytes[25]) << 4 ) + ((input.bytes[26] & 0xF0) >> 4)) / 3 * 100) / 100;
+
+            
             let outside_O2 = 945;
-            let outside_NH3 = 70.41;
-            let outside_CO = 91.6;
-            let outside_NO2 = 23.83;
-            let outside_C3H8 = 70.41;
-            let outside_C4H10 = 24.9;
-            let outside_CH4 = 109.96;
-            let outside_H2 = 24.9;
-            let outside_C2H50H = 83.98;
+            let outside_NH3 = ((((input.bytes[26]) & 0x0F) << 8 ) + ((input.bytes[27]))) / 10;
+            let outside_CO = (((input.bytes[28]) << 4 ) + ((input.bytes[29] & 0xF0) >> 4)) / 10;
+            let outside_NO2 = ((((input.bytes[29]) & 0x0F) << 8 ) + ((input.bytes[30]))) / 10;
+            let outside_C3H8 = (((input.bytes[31]) << 4 ) + ((input.bytes[32] & 0xF0) >> 4)) / 10;
+            let outside_C4H10 = ((((input.bytes[32]) & 0x0F) << 8 ) + ((input.bytes[33]))) / 10;
+            let outside_CH4 = (((input.bytes[34]) << 4 ) + ((input.bytes[35] & 0xF0) >> 4)) / 10;
+            let outside_H2 = ((((input.bytes[35]) & 0x0F) << 8 ) + ((input.bytes[36]))) / 10;
+            let outside_C2H50H = (((input.bytes[37]) << 4 ) + ((input.bytes[38] & 0xF0) >> 4)) / 10;
 
             let outside_air_quality = 0;
-
-            let pressure = (((input.bytes[25]) << 4 ) + ((input.bytes[26] & 0xF0) >> 4)) / 3; 
 
             return {
               data: {

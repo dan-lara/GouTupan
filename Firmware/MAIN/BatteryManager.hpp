@@ -1,7 +1,7 @@
 #ifndef BATTERY_MANAGER_H
 #define BATTERY_MANAGER_H
 
-#define TEST_MODE 0
+//#define TEST_MODE 0
 
 #include <cstdint>
 
