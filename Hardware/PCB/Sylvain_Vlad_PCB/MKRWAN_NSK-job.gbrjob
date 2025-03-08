@@ -5,17 +5,17 @@
       "Application": "Pcbnew",
       "Version": "9.0.0"
     },
-    "CreationDate": "2025-03-05T10:58:28+01:00"
+    "CreationDate": "2025-03-08T23:10:00+01:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
       "Name": "MKRWAN_NSK",
       "GUID": "4d4b5257-414e-45f4-9e53-4b2e6b696361",
-      "Revision": "rev?"
+      "Revision": "v4"
     },
     "Size": {
-      "X": 70.55,
-      "Y": 84.05
+      "X": 86.3899,
+      "Y": 97.5532
     },
     "LayerNumber": 2,
     "BoardThickness": 1.6,
