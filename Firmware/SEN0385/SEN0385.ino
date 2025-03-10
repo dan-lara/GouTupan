@@ -1,31 +1,26 @@
 #include <Arduino.h>
-#include <Wire.h>
-#include <ArtronShop_SHT3x.h>
+#include "SHT3xSensor.hpp"
 
-ArtronShop_SHT3x sht3x(0x44, &Wire); // ADDR: 0 => 0x44, ADDR: 1 => 0x45
+SHT3xSensor sensor; // 使用默认地址0x44和Wire
 
 void setup() {
-  Serial.begin(9600);
-
-  
-
-  Wire.begin();
-  while (!sht3x.begin()) {
-    Serial.println("SHT3x not found !");
-    delay(1000);
-  }
+    Serial.begin(9600);
+    
+    while (!sensor.begin()) {
+        Serial.println("SHT3x not found!");
+        delay(1000);
+    }
 }
 
 void loop() {
-  if (sht3x.measure()) {
-    Serial.print("Temperature: ");
-    Serial.print(sht3x.temperature(), 1);
-    Serial.print(" *C\tHumidity: ");
-    Serial.print(sht3x.humidity(), 1);
-    Serial.print(" %RH");
-    Serial.println();
-  } else {
-    Serial.println("SHT3x read error");
-  }
-  delay(1000);
+    if (sensor.measure()) {
+        Serial.print("Temperature: ");
+        Serial.print(sensor.temperature(), 1);
+        Serial.print(" *C\tHumidity: ");
+        Serial.print(sensor.humidity(), 1);
+        Serial.println(" %RH");
+    } else {
+        Serial.println("SHT3x read error");
+    }
+    delay(1000);
 }
