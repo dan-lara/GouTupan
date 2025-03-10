@@ -1,4 +1,4 @@
-#include "epd_text.h"
+#include "epd_text.hpp"
 #include <avr/pgmspace.h>
 
 EpdText::EpdText(Epd &epd) : _epd(epd) {
@@ -75,12 +75,13 @@ void EpdText::displayText(const char* text) {
 }
 
 void EpdText::updateDisplay(float temp, float humidity, float pressure) {
-    char buf[60];
+    char buf[100];
     snprintf(buf, sizeof(buf), 
         "Bonjour !\n"
-        "Temp:%.1f\x80\n"   // \x80对应℃符号
-        "Humid:%.1f%%",
-        temp, humidity
+        "Temp:%.1f\x60\n"   // \x60 -> ℃
+        "Humid:%.1f%%\n"
+        "Pres:%.1f hpa",
+        temp, humidity, pressure
     );
     
     clear();

@@ -1,10 +1,9 @@
-// epd_text.h
 #ifndef EPD_TEXT_H
 #define EPD_TEXT_H
 
 #include <Arduino.h>
-#include "epd2in9b_V3.h"
-#include "font8x8.h"
+#include "epd2in9b_V3.hpp"
+#include "font8x8.hpp"
 
 #define CHAR_WIDTH 8
 #define CHAR_HEIGHT 8

@@ -25,8 +25,9 @@
  */
 
 #include <SPI.h>
-#include "epd2in9b_V3.hpp"
-#include "epd_text.hpp"
+#include "epd2in9b_V3.h"
+#include "imagedata.h"
+#include "epd_text.h"
 
 Epd epd;
 EpdText epdText(epd);
@@ -45,8 +46,8 @@ void setup() {
   //epdText.updateDisplay(25.5, 40.2); // 示例数据
   epdText.displayText("AABCDEFGZz\n00123456789\nBonjour !\nTemperature:25℃degree\nHumidity:40 percent"); // 检查换行和长边方向
 
-  delay(2000);
-  epd.Clear();
+  //delay(2000);
+  //epd.Clear();
   /*
   // Exemple de contenu du programme
   Serial.print("2.9inch b V3 e-Paper init \r\n ");
@@ -70,4 +71,77 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
+}
+
+
+#include <SPI.h>
+#include "epd2in9b_V3.hpp"
+#include "epd_text.hpp"
+//#include <sstream>
+//#include <string>
+
+//#define TEST_MODE 1   // Set to 1 to enable debug output, 0 to disable
+
+Epd epd;
+EpdText epdText(epd);
+
+void setup() {
+  // put your setup code here, to run once:
+  //#if TEST_MODE
+  Serial.begin(115200);
+  delay(2000);
+
+  if (epd.Init() != 0) {
+      Serial.print("e-Paper init failed\r\n ");
+      return;
+  }
+  Serial.print("2.9inch b V3 e-Paper init \r\n ");
+  //#endif
+  delay(1000);
+  epdText.displayText("AABCDEFGZz\n00123456789\nBonjour !\nTemperature:25℃degree\nHumidity:40 percent"); // 检查换行和长边方向
+  delay(2000);
+  epd.Clear();
+  /*
+  delay(500);
+  epdText.displayText("Test1\n");
+    // 读取传感器数据
+    float Pvalue = 1003.7;
+    
+    std::string Temperature = "Temperature: ";
+    float Tvalue = 23.5;
+    std::string Humidity = "℃ Humidity: ";
+    float Hvalue = 40.8;
+    std::string pressure = "% Pressure: ";
+    std::string hh = "hPa \n ";
+
+    std::ostringstream oss;
+    oss << Temperature << Tvalue << Humidity << Hvalue << pressure << Pvalue << hh; // 直接拼接
+
+    std::string result = oss.str();
+    epdText.displayText(result.c_str());
+
+    // 生成含 ℃ 的字符串
+    //epdText.updateDisplay(temperature, humidity, pressure);
+  delay(5000);
+  epd.Clear();
+  */
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  /*
+  do
+  {
+    epd.Clear();
+    float temperature = 25.0;
+    float humidity = 40.0;
+    // Create a String and convert it to a const char* using .c_str()
+    String displayStr = "Temperature: " + String(temperature) + "℃ degree\nHumidity: " + String(humidity) + " percent";
+    epdText.displayText(displayStr.c_str()); 
+    delay(10000);
+    temperature += 0.1;
+    humidity += 0.1;
+    i++;
+  } while (i<50);
+  */
 }
