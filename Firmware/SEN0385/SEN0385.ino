@@ -7,6 +7,8 @@ ArtronShop_SHT3x sht3x(0x44, &Wire); // ADDR: 0 => 0x44, ADDR: 1 => 0x45
 void setup() {
   Serial.begin(9600);
 
+  
+
   Wire.begin();
   while (!sht3x.begin()) {
     Serial.println("SHT3x not found !");
