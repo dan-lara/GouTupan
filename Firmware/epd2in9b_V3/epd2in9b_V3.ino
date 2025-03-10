@@ -41,9 +41,9 @@ void setup() {
       return;
   }
   Serial.print("2.9inch b V3 e-Paper init \r\n ");
-  delay(1000);
+  //delay(1000);
   //epdText.updateDisplay(25.5, 40.2); // 示例数据
-  epdText.displayText("AABCDEFGZz\n00123456789\nBonjour !\nTemperature:25℃degree\nHumidity:40 percent"); // 检查换行和长边方向
+  //epdText.displayText("AABCDEFGZz\n00123456789\nBonjour !\nTemperature:25℃degree\nHumidity:40 percent"); // 检查换行和长边方向
 
   delay(2000);
   epd.Clear();
