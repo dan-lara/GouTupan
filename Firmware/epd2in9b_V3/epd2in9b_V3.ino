@@ -41,30 +41,9 @@ void setup() {
       return;
   }
   Serial.print("2.9inch b V3 e-Paper init \r\n ");
-  //delay(1000);
-  //epdText.updateDisplay(25.5, 40.2); // 示例数据
-  //epdText.displayText("AABCDEFGZz\n00123456789\nBonjour !\nTemperature:25℃degree\nHumidity:40 percent"); // 检查换行和长边方向
 
-  delay(2000);
+  delay(1000);
   epd.Clear();
-  /*
-  // Exemple de contenu du programme
-  Serial.print("2.9inch b V3 e-Paper init \r\n ");
-  epd.Reset();
-  if (epd.Init() != 0) {
-      Serial.print("e-Paper init failed\r\n ");
-      return;
-  }
-  
-  Serial.print("e-Paper Clear\r\n ");
-  epd.Clear();
-  
-  Serial.print("draw image\r\n ");
-  epd.DisplayFrame(IMAGE_DATA, IMAGE_DATA);
-    
-  //delay(2000);
-  //epd.Clear();
-  */
 }
 
 void loop() {
