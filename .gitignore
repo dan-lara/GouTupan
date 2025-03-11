@@ -1,3 +1,4 @@
 .env
+.venv
 
 Arduino_Key.hpp
