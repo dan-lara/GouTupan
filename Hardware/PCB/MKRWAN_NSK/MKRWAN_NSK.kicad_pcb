@@ -9243,6 +9243,7 @@
 			)
 			(fill no)
 			(layer "Cmts.User")
+			(net 6619246)
 			(uuid "dbb71c5f-10b0-49bb-8ba6-c1f9d51ca2f9")
 		)
 		(fp_circle
@@ -9254,6 +9255,7 @@
 			)
 			(fill no)
 			(layer "F.CrtYd")
+			(net 6619246)
 			(uuid "205c0453-2814-4c14-82f6-91f3de2be266")
 		)
 		(fp_text user "${REFERENCE}"
