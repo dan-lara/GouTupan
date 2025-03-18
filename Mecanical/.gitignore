@@ -2,7 +2,6 @@
 *.FCBak
 
 # Exportations 3D (inutile de versionner)
-*.stl
 *.step
 *.iges
 *.obj
