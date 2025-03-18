@@ -1,0 +1,15 @@
+# Fichiers de sauvegarde automatique FreeCAD (générés à chaque modification)
+*.FCBak
+
+# Exportations 3D (inutile de versionner)
+*.stl
+*.step
+*.iges
+*.obj
+*.wrl
+*.dxf
+
+# Fichiers temporaires système (macOS, Windows, etc.)
+.DS_Store
+Thumbs.db
+*.tmp
