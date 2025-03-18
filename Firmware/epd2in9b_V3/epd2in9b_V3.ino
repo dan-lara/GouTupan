@@ -41,6 +41,11 @@ void setup() {
       return;
   }
   Serial.print("2.9inch b V3 e-Paper init \r\n ");
+  
+  // 显示法语文本（带换行）
+  display.DisplayText("Bonjour 25\xB0C\nHumidité: 75%", 10, 20);
+    
+  display.RefreshScreen();  // 刷新屏幕，使文本生效
 
   delay(1000);
   epd.Clear();
