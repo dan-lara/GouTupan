@@ -183,7 +183,8 @@ void Send_LoRa_Data
 
     float light_intensity, float light_infrared, float light_ultraviolet,
     float R_RGB, float G_RGB, float B_RGB,
-    float pressure
+    float pressure, float quality, float O2,
+    float nh3, float co, float no2, float c3h8, float c4h10, float ch4, float h2, float c2h5oh
 ) 
 {
     uint8_t payload[NB_BITS_PAYLOAD] = {0};
@@ -261,8 +262,8 @@ void Send_LoRa_Data
     payload[19] =  (compressed_light_infrared) >> 4;  // 8 high-order bits
     payload[20] += (compressed_light_infrared) << 4;  // 4 low-order bits
 
-    // 1️⃣3️⃣ 1.5_HEX byte light compression
-    uint16_t compressed_light_ultraviolet = compress_3_HEX(light_ultraviolet/10); 
+    // 1️⃣4️⃣ 1.5_HEX byte light compression
+    uint16_t compressed_light_ultraviolet = compress_3_HEX(light_ultraviolet*100); 
     payload[20] += (compressed_light_ultraviolet) >> 8;  // 4 high-order bits
     payload[21] =  (compressed_light_ultraviolet);       // 8 low-order bits
 
@@ -279,10 +280,53 @@ void Send_LoRa_Data
     payload[25] =  (compressed_pressure) >> 4;  // 8 high-order bits
     payload[26] += (compressed_pressure) << 4;  // 4 low-order bits
 
-    // 1️⃣6️⃣ Fill the rest of the payload with 0x00 (padding up to 51 bytes)
-    for (int i = 27; i < NB_BITS_PAYLOAD; i++) payload[i] = 0x00;
+    // 1️⃣5️⃣ 1.5_HEX byte GAZ compression
+    uint16_t compressed_nh3 = compress_3_HEX(nh3*10); 
+    payload[26] += (compressed_nh3) >> 8;  // 4 high-order bits
+    payload[27] =  (compressed_nh3);       // 8 low-order bits
 
-    // 1️⃣7️⃣ Debug print payload 
+    uint16_t compressed_co = compress_3_HEX(co*10); 
+    payload[28] =  (compressed_co) >> 4;  // 8 high-order bits
+    payload[29] += (compressed_co) << 4;  // 4 low-order bits
+
+    uint16_t compressed_no2 = compress_3_HEX(no2*10); 
+    payload[29] += (compressed_no2) >> 8;  // 4 high-order bits
+    payload[30] =  (compressed_no2);       // 8 low-order bits
+
+    uint16_t compressed_c3h8 = compress_3_HEX(c3h8*10); 
+    payload[31] =  (compressed_c3h8) >> 4;  // 8 high-order bits
+    payload[32] += (compressed_c3h8) << 4;  // 4 low-order bits
+
+    uint16_t compressed_c4h10 = compress_3_HEX(c4h10*10); 
+    payload[32] += (compressed_c4h10) >> 8;  // 4 high-order bits
+    payload[33] =  (compressed_c4h10);       // 8 low-order bits
+
+    uint16_t compressed_ch4 = compress_3_HEX(ch4*10); 
+    payload[34] =  (compressed_ch4) >> 4;  // 8 high-order bits
+    payload[35] += (compressed_ch4) << 4;  // 4 low-order bits
+
+    uint16_t compressed_h2 = compress_3_HEX(h2*10); 
+    payload[35] += (compressed_h2) >> 8;  // 4 high-order bits
+    payload[36] =  (compressed_h2);       // 8 low-order bits
+
+    uint16_t compressed_c2h5oh = compress_3_HEX(c2h5oh*10); 
+    payload[37] =  (compressed_c2h5oh) >> 4;  // 8 high-order bits
+    payload[38] += (compressed_c2h5oh) << 4;  // 4 low-order bits
+
+    // 1️⃣6️⃣ 1.5_HEX byte GAZ_Global_Polution compression
+    uint16_t compressed_quality = compress_3_HEX(quality*5); 
+    payload[38] += (compressed_quality) >> 8;  // 4 high-order bits
+    payload[39] =  (compressed_quality);       // 8 low-order bits
+
+    // 1️⃣7️⃣ 2 HEX byte O2 compression
+    int16_t compressed_outside_O2 = round(O2 / 6);
+    payload[40] = (compressed_outside_O2 >> 8);   // 8 high-order bits
+    payload[41] = (compressed_outside_O2);        // 8 low-order bits
+
+    // 1️⃣8️⃣ Fill the rest of the payload with 0x00 (padding up to 51 bytes)
+    for (int i = 42; i < NB_BITS_PAYLOAD; i++) payload[i] = 0x00;
+
+    // 1️⃣9️⃣ Debug print payload 
     #if TEST_MODE
         Serial.print("\nSending LoRa -> Payload: ");
         for (int i = 0; i < NB_BITS_PAYLOAD; i++) 
