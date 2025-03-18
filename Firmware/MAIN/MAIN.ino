@@ -18,6 +18,18 @@ Adafruit_SCD30  scd30;
 //RGB
     #include "ColorSensor.hpp"
 
+//Pressure
+    #include "Baroleter_High_Accuracy.hpp"
+
+//RGB
+    #include "ColorSensor.hpp"
+
+//Humidity soil
+    #include "DFRobot_SEN0308.hpp"
+    //#define SENSOR_PIN A1   //30cm
+    #define SENSOR_PIN2 A2  //10cm
+    //SoilMoistureSensor_SEN0308 cap;
+    SoilMoistureSensor_SEN0308 cap2;
 //Humidity soil
     #include "DFRobot_SEN0308.hpp"
     //#define SENSOR_PIN A1   //30cm
@@ -57,6 +69,20 @@ Adafruit_SCD30  scd30;
 
 void setup() 
 {
+    #if TEST_MODE
+        Serial.begin(115200);
+        Serial.println("START");
+    #endif
+
+    int attempts = 0;
+    while (!scd30.begin() && attempts < NB_MAX_SENSOR_ATTEMPT) 
+    {
+        #if TEST_MODE
+            Serial.println("Tentative de connexion au capteur CO2...");
+        #endif
+        delay(400);  // Attendre 1 seconde avant de réessayer
+        attempts++;
+    }
     #if TEST_MODE
         Serial.begin(115200);
         Serial.println("START");
