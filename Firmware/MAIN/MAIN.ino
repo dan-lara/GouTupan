@@ -30,12 +30,6 @@ Adafruit_SCD30  scd30;
     #define SENSOR_PIN2 A2  //10cm
     //SoilMoistureSensor_SEN0308 cap;
     SoilMoistureSensor_SEN0308 cap2;
-//Humidity soil
-    #include "DFRobot_SEN0308.hpp"
-    //#define SENSOR_PIN A1   //30cm
-    #define SENSOR_PIN2 A2  //10cm
-    //SoilMoistureSensor_SEN0308 cap;
-    SoilMoistureSensor_SEN0308 cap2;
 
 //Soil Temperatur + Humidity
     #include "SHT3xSensor.hpp"
@@ -64,15 +58,25 @@ Adafruit_SCD30  scd30;
     #include "SEN0332_O2.hpp"
     DFRobot_OxygenSensor oxygen;
 
+//Timer
+    #define DONE_PIN 3  // TPL5110 DONE 连接到 Arduino D2
+
 #define TEST_MODE 0 
 #define NB_MAX_SENSOR_ATTEMPT 10
 
 void setup() 
 {
+    delay(10000);
+
     #if TEST_MODE
         Serial.begin(115200);
         Serial.println("START");
     #endif
+    
+    //setup Timer
+    pinMode(DONE_PIN, OUTPUT);
+    digitalWrite(DONE_PIN, LOW); // 初始状态，DONE 置低
+    
 
     int attempts = 0;
     while (!scd30.begin() && attempts < NB_MAX_SENSOR_ATTEMPT) 
@@ -88,7 +92,7 @@ void setup()
         Serial.println("START");
     #endif
 
-    int attempts = 0;
+    attempts = 0;
     while (!scd30.begin() && attempts < NB_MAX_SENSOR_ATTEMPT) 
     {
         #if TEST_MODE
@@ -97,8 +101,9 @@ void setup()
         delay(400);  // Attendre 1 seconde avant de réessayer
         attempts++;
     }
+
     initializeLoRa();
-
+    
     // Sensors Setup
     
     // Pressure
@@ -219,7 +224,7 @@ void loop()
     readGasValues(&nh3, &co, &no2, &c3h8, &c4h10, &ch4, &h2, &c2h5oh);
     
     
-    delay(2300);
+    delay(2000);
 
         Send_LoRa_Data(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
                     soil_nutrients_N_Nitrogen, soil_nutrients_P_Phosphorus, soil_nutrients_K_Potassium,
@@ -229,7 +234,22 @@ void loop()
                     R_RGB, G_RGB, B_RGB,
                     pressure, quality, O2,
                     nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh);
+    
+    delay(500);
 
-    delay(7700);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
-        
+//Send_E_ink_Data(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
+//                     soil_nutrients_N_Nitrogen, soil_nutrients_P_Phosphorus, soil_nutrients_K_Potassium,
+//                     surface_temperature, surface_humidity,
+//                     deep_temperature, deep_humidity,
+//                     light_intensity, light_infrared, light_ultraviolet,
+//                     R_RGB, G_RGB, B_RGB,
+//                     pressure, quality, O2,
+//                     nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh);
+
+    delay(10000);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
+
+    digitalWrite(DONE_PIN, HIGH);
+    delay(1);
+    digitalWrite(DONE_PIN, LOW);      
+    delay(1);
 }
