@@ -127,34 +127,36 @@ void EpdText::updateDisplay(
     float pressure, float quality, float O2,
     float nh3, float co, float no2, float c3h8, float c4h10, float ch4, float h2, float c2h5oh
 ) {
-    // 每个浮点数转字符串
-    char buf[800];  // 缓冲区增大以容纳所有数据
-    String text = "";
-    text += "T: " + String(outside_temperature, 1) + "C ";
-    text += "H: " + String(outside_humidity, 1) + "Pourcent ";
-    text += "CO2: " + String(outside_CO2, 0) + "ppm\n";
-    
-    text += "NPK: " + String(soil_nutrients_N_Nitrogen, 1) + " ";
-    text += String(soil_nutrients_P_Phosphorus, 1) + " ";
-    text += String(soil_nutrients_K_Potassium, 1) + "\n";
-    
-    text += "Surface T/H: " + String(surface_temperature, 1) + " " + String(surface_humidity, 1) + "\n";
-    text += "Deep T/H: " + String(deep_temperature, 1) + " " + String(deep_humidity, 1) + "\n";
-    
-    text += "Light: " + String(light_intensity, 1) + " IR:" + String(light_infrared, 1);
-    text += " UV:" + String(light_ultraviolet, 1) + "\n";
-    
-    text += "RGB: " + String(R_RGB, 0) + " " + String(G_RGB, 0) + " " + String(B_RGB, 0) + "\n";
-    
-    text += "P: " + String(pressure, 1) + "hPa ";
-    text += "O2:" + String(O2, 1) + " Q:" + String(quality, 1) + "\n";
-    
-    text += "Gas: NH3:" + String(nh3, 2) + " CO:" + String(co, 2) + " NO2:" + String(no2, 2) + "\n";
-    text += "CH4:" + String(ch4, 2) + " C3H8:" + String(c3h8, 2) + " C4H10:" + String(c4h10, 2) + "\n";
-    text += "H2:" + String(h2, 2) + " EtOH:" + String(c2h5oh, 2);
+    String text;
+    text.reserve(1024);  // 预分配内存
 
-    memset(_buffer, 0xFF, BUFFER_SIZE); // 清屏
-    displayText(buf); // 显示内容
+    // 拼接数据（规范格式化）
+    text += "T:" + String(outside_temperature, 1) + "C, ";
+    text += "H:" + String(outside_humidity, 1) + "%, ";
+    text += "CO2:" + String(outside_CO2, 0) + "ppm,\n";
+    
+    text += "NPK:" + String(soil_nutrients_N_Nitrogen, 1) + ", ";
+    text += String(soil_nutrients_P_Phosphorus, 1) + ", ";
+    text += String(soil_nutrients_K_Potassium, 1) + ",\n";
+    
+    text += "Surface T/H:" + String(surface_temperature, 1) + ", " + String(surface_humidity, 1) + ",\n";
+    text += "Deep T/H:" + String(deep_temperature, 1) + ", " + String(deep_humidity, 1) + ",\n";
+    
+    text += "Light:" + String(light_intensity, 1) + ", IR:" + String(light_infrared, 1);
+    text += ", UV:" + String(light_ultraviolet, 1) + ",\n";
+    
+    text += "RGB:" + String(R_RGB, 0) + ", " + String(G_RGB, 0) + ", " + String(B_RGB, 0) + ",\n";
+    
+    text += "P:" + String(pressure, 1) + "hPa, ";
+    text += "O2:" + String(O2, 1) + ", Q:" + String(quality, 1) + ",\n";
+    
+    text += "Gas: NH3:" + String(nh3, 2) + ", CO:" + String(co, 2) + ", NO2:" + String(no2, 2) + ",\n";
+    text += "CH4:" + String(ch4, 2) + ", C3H8:" + String(c3h8, 2) + ", C4H10:" + String(c4h10, 2) + ",\n";
+    text += "H2:" + String(h2, 2) + ", EtOH:" + String(c2h5oh, 2);
+
+    // 清空缓冲区并显示
+    memset(_buffer, 0xFF, BUFFER_SIZE);
+    displayText(text.c_str());  // 直接传递正确字符串
     
     #if TEST_MODE
         Serial.print("Display updated, wait for idle...\n");

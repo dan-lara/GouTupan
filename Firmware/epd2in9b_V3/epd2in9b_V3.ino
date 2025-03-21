@@ -28,8 +28,6 @@
 #include "epd2in9b_V3.hpp"
 #include "epd_text.hpp"
 
-#define Transportation_Mode 0
-
 Epd epd;
 EpdText epdText(epd);
 
@@ -47,14 +45,12 @@ void setup() {
       return;
   }
   
-  #if Transportation_Mode
     Serial.print("e-Paper Clear\r\n ");
     epd.Clear();
-  #endif
-  
-  #if ~Transportation_mode
+
+    delay(2000);
   // 显示法语文本（带换行）
-  epdText.displayText("AABCDEFGZz\n00123456789");
+  //epdText.displayText("AABCDEFGZz\n00123456789");
   epdText.updateDisplay(0, 23.4, 450.0, 40.2, 85.6,
                       10, 5, 12,
                       25.0, 45.0,
@@ -64,7 +60,6 @@ void setup() {
                       1013, 80, 20.9,
                       0.1, 2.3, 0.5, 0.7, 0.6, 1.0, 0.2, 0.3);
   
-  #endif
 }
 
 void loop() {

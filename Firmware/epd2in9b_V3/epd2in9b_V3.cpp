@@ -81,7 +81,7 @@ void Epd::WaitUntilIdle(void) {
         busy = DigitalRead(busy_pin);         // 读取 busy 引脚
         busy = !(busy & 0x01);                // 转换为逻辑值：1=忙，0=就绪
 
-        if (millis() - start > 10000) {        // 超时(10s)处理
+        if (millis() - start > 20000) {        // 超时(10s)处理
             Serial.println("e-Paper busy timeout! Forcing reset...");
             Reset();                          // 硬件复位
             Init();                           // 重新初始化配置
