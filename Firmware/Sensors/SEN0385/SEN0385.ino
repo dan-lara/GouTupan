@@ -25,9 +25,9 @@ void loop()
     {
       
         Serial.print("Temperature: ");
-        Serial.print(sensor.temperature(), 1);
+        Serial.print(SHT3xsensor.temperature(), 1);
         Serial.print(" *C\tHumidity: ");
-        Serial.print(sensor.humidity(), 3);
+        Serial.print(SHT3xsensor.humidity(), 3);
         Serial.println(" %RH");
     } 
     else 

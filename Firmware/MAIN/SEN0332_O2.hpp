@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define TEST_MODE 1  // Enable (1) or disable (0) debug prints
+#define TEST_MODE 0  // Enable (1) or disable (0) debug prints
 
 #define ADDRESS_0   0x70
 #define ADDRESS_1   0x71
