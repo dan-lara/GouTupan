@@ -28,6 +28,8 @@
 #include "epd2in9b_V3.hpp"
 #include "epd_text.hpp"
 
+#define Transportation_Mode 0
+
 Epd epd;
 EpdText epdText(epd);
 
@@ -36,19 +38,33 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
 
+  Serial.print("2.9inch b V3 e-Paper init \r\n ");
+  Serial.print("2.9inch b V3 e-Paper init \r\n ");
+  Serial.print("2.9inch b V3 e-Paper init \r\n ");
+
   if (epd.Init() != 0) {
       Serial.print("e-Paper init failed\r\n ");
       return;
   }
-  Serial.print("2.9inch b V3 e-Paper init \r\n ");
   
+  #if Transportation_Mode
+    Serial.print("e-Paper Clear\r\n ");
+    epd.Clear();
+  #endif
+  
+  #if ~Transportation_mode
   // 显示法语文本（带换行）
-  display.DisplayText("Bonjour 25\xB0C\nHumidité: 75%", 10, 20);
-    
-  display.RefreshScreen();  // 刷新屏幕，使文本生效
-
-  delay(1000);
-  epd.Clear();
+  epdText.displayText("AABCDEFGZz\n00123456789");
+  epdText.updateDisplay(0, 23.4, 450.0, 40.2, 85.6,
+                      10, 5, 12,
+                      25.0, 45.0,
+                      22.3, 47.5,
+                      600, 100, 30,
+                      255, 128, 64,
+                      1013, 80, 20.9,
+                      0.1, 2.3, 0.5, 0.7, 0.6, 1.0, 0.2, 0.3);
+  
+  #endif
 }
 
 void loop() {

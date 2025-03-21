@@ -19,21 +19,21 @@ int Epd::Init(void) {
     }
     Reset();
 
-    SendCommand(0x04);//power on
-    WaitUntilIdle();//waiting for the electronic paper IC to release the idle signal
+    SendCommand(0x04);  // power on
+    WaitUntilIdle();    // waiting for the electronic paper IC to release the idle signal
 
-    SendCommand(0x00);//panel setting
-    SendData(0x0f);//default data
-    SendData(0x89);//128x296,Temperature sensor, boost and other related timing settings
+    SendCommand(0x00);  // panel setting
+    SendData(0x0f); // default data
+    SendData(0x89); // 128x296,Temperature sensor, boost and other related timing settings
 
-    SendCommand(0x61);//Display resolution setting
+    SendCommand(0x61);  // Display resolution setting
     SendData (0x80);
     SendData (0x01);
     SendData (0x28);
 
-    SendCommand(0X50);//VCOM AND DATA INTERVAL SETTING      
-    SendData(0x77);//WBmode:VBDF 17|D7 VBDW 97 VBDB 57   
-                            //WBRmode:VBDF F7 VBDW 77 VBDB 37  VBDR B7
+    SendCommand(0X50);  // VCOM AND DATA INTERVAL SETTING      
+    SendData(0x77); // WBmode:VBDF 17|D7 VBDW 97 VBDB 57   
+                    // WBRmode:VBDF F7 VBDW 77 VBDB 37  VBDR B7
     return 0;
 }
 
@@ -56,6 +56,7 @@ void Epd::SendData(unsigned char data) {
 /**
  *  @brief: Wait until the busy_pin goes HIGH
  */
+/*
 void Epd::WaitUntilIdle(void) {
   unsigned char busy;
   Serial.print("e-Paper busy \r\n ");
@@ -69,6 +70,30 @@ void Epd::WaitUntilIdle(void) {
   Serial.print("e-Paper busy release \r\n ");
   DelayMs(200);
 }
+*/
+void Epd::WaitUntilIdle(void) {
+    unsigned char busy;
+    unsigned long start = millis();
+    Serial.println("e-Paper busy...");
+
+    do {
+        SendCommand(0x71);                    // 查询状态
+        busy = DigitalRead(busy_pin);         // 读取 busy 引脚
+        busy = !(busy & 0x01);                // 转换为逻辑值：1=忙，0=就绪
+
+        if (millis() - start > 10000) {        // 超时(10s)处理
+            Serial.println("e-Paper busy timeout! Forcing reset...");
+            Reset();                          // 硬件复位
+            Init();                           // 重新初始化配置
+            break;
+        }
+
+        DelayMs(100);                         // 适当降低查询频率
+    } while (busy);
+
+    Serial.println("e-Paper ready.");
+    DelayMs(200);                             // 确保状态稳定
+}
 
 /**
  *  @brief: module reset.
@@ -78,14 +103,14 @@ void Epd::WaitUntilIdle(void) {
 void Epd::Reset(void) {
     DigitalWrite(reset_pin, HIGH);
     DelayMs(200);   
-    DigitalWrite(reset_pin, LOW);                //module reset    
+    DigitalWrite(reset_pin, LOW);                // module reset    
     DelayMs(5);
     DigitalWrite(reset_pin, HIGH);
     DelayMs(200);    
 }
 
 void Epd::DisplayFrame(const UBYTE *blackimage, const UBYTE *ryimage) {
-    SendCommand(0x10);
+    SendCommand(0x10);  // 黑白图层写入
     for (UWORD j = 0; j < height; j++) {
         for (UWORD i = 0; i < width; i++) {
           SendData(pgm_read_byte(&blackimage[i + (j*width)]));
@@ -93,7 +118,7 @@ void Epd::DisplayFrame(const UBYTE *blackimage, const UBYTE *ryimage) {
     }
     SendCommand(0x92);
     
-    SendCommand(0x13);
+    SendCommand(0x13);  // 红色图层写入
     for (UWORD j = 0; j < height; j++) {
         for (UWORD i = 0; i < width; i++) {
           SendData(pgm_read_byte(&ryimage[i + (j*width)]));
@@ -101,7 +126,7 @@ void Epd::DisplayFrame(const UBYTE *blackimage, const UBYTE *ryimage) {
     }
     SendCommand(0x92);
 
-    SendCommand(0x12);
+    SendCommand(0x12);  // 刷新屏幕命令
     WaitUntilIdle();
 }
 
