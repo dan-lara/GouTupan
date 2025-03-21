@@ -3,6 +3,7 @@
 
 #include "epdif.hpp"
 
+
 // Display resolution
 #define EPD_WIDTH       128
 #define EPD_HEIGHT      296

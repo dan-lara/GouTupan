@@ -28,6 +28,8 @@
 #include "epd2in9b_V3.hpp"
 #include "epd_text.hpp"
 
+#define TEST_MODE 1
+
 Epd epd;
 EpdText epdText(epd);
 

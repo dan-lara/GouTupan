@@ -10,7 +10,7 @@ char* dtostrf(double val, signed char width, unsigned char prec, char* buf) {
 
 // 根据imagedata.cpp分析，屏幕分辨率为128x296，缓冲区长=128/8*296=4736字节
 #define BUFFER_SIZE 4736 
-#define TEST_MODE 1
+// #define TEST_MODE 1
 
 EpdText::EpdText(Epd &epd) : _epd(epd) {
     memset(_buffer, 0xFF, BUFFER_SIZE); // 初始化为全白（0xFF代表白色）

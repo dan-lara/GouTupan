@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include "epd2in9b_V3.hpp"
 
+//#define TEST_MODE 1
+
 Epd::~Epd() {
 };
 
@@ -74,7 +76,9 @@ void Epd::WaitUntilIdle(void) {
 void Epd::WaitUntilIdle(void) {
     unsigned char busy;
     unsigned long start = millis();
-    Serial.println("e-Paper busy...");
+    #if TEST_MODE
+        Serial.println("e-Paper busy...");
+    #endif
 
     do {
         SendCommand(0x71);                    // 查询状态
@@ -82,7 +86,9 @@ void Epd::WaitUntilIdle(void) {
         busy = !(busy & 0x01);                // 转换为逻辑值：1=忙，0=就绪
 
         if (millis() - start > 20000) {        // 超时(10s)处理
-            Serial.println("e-Paper busy timeout! Forcing reset...");
+            #if TEST_MODE
+                Serial.println("e-Paper busy timeout! Forcing reset...");
+            #endif
             Reset();                          // 硬件复位
             Init();                           // 重新初始化配置
             break;
@@ -91,7 +97,9 @@ void Epd::WaitUntilIdle(void) {
         DelayMs(100);                         // 适当降低查询频率
     } while (busy);
 
-    Serial.println("e-Paper ready.");
+    #if TEST_MODE
+        Serial.println("e-Paper ready.");
+    #endif
     DelayMs(200);                             // 确保状态稳定
 }
 
