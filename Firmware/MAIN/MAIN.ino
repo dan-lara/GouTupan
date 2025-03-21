@@ -207,8 +207,10 @@ void loop()
     readAndNormalizeColor(&R_RGB, &G_RGB, &B_RGB, &light_intensity);
 
     uint16_t light_infrared = SI1145.readIR();
-    Serial.print("Vis: "); Serial.println(SI1145.readVisible());
-    Serial.print("IR: "); Serial.println(light_infrared);
+    #if TEST_MODE
+        Serial.print("Vis: "); Serial.println(SI1145.readVisible());
+        Serial.print("IR: "); Serial.println(light_infrared);
+    #endif
     float light_ultraviolet = (float)(SI1145.readUV()) / 100;
 
     float pressure = getPressure();
