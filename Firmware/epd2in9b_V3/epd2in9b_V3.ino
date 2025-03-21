@@ -29,6 +29,7 @@
 #include "epd_text.hpp"
 
 #define TEST_MODE 1
+#define OPERATION_MODE 0
 
 Epd epd;
 EpdText epdText(epd);
@@ -38,21 +39,28 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
 
+  #if TEST_MODE
   Serial.print("2.9inch b V3 e-Paper init \r\n ");
   Serial.print("2.9inch b V3 e-Paper init \r\n ");
   Serial.print("2.9inch b V3 e-Paper init \r\n ");
+  #endif
 
   if (epd.Init() != 0) {
-      Serial.print("e-Paper init failed\r\n ");
+      #if TEST_MODE
+        Serial.print("e-Paper init failed\r\n ");
+      #endif
       return;
   }
   
-    Serial.print("e-Paper Clear\r\n ");
+    #if TEST_MODE
+      Serial.print("e-Paper Clear\r\n ");
+    #endif
     epd.Clear();
 
-    delay(2000);
   // 显示法语文本（带换行）
   //epdText.displayText("AABCDEFGZz\n00123456789");
+  #if OPERATION_MODE
+  delay(2000);
   epdText.updateDisplay(0, 23.4, 450.0, 40.2, 85.6,
                       10, 5, 12,
                       25.0, 45.0,
@@ -61,7 +69,7 @@ void setup() {
                       255, 128, 64,
                       1013, 80, 20.9,
                       0.1, 2.3, 0.5, 0.7, 0.6, 1.0, 0.2, 0.3);
-  
+  #endif
 }
 
 void loop() {

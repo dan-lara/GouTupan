@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "epd2in9b_V3.hpp"
 
-//#define TEST_MODE 1
+#define TEST_MODE 1
 
 Epd::~Epd() {
 };

@@ -8,6 +8,7 @@ char* dtostrf(double val, signed char width, unsigned char prec, char* buf) {
 }
 #endif
 
+#define TEST_MODE 1
 // 根据imagedata.cpp分析，屏幕分辨率为128x296，缓冲区长=128/8*296=4736字节
 #define BUFFER_SIZE 4736 
 // #define TEST_MODE 1
