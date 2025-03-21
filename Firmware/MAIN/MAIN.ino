@@ -1,17 +1,11 @@
 // Read_and_Send.ino
-
-/* 
- * The sensor which aren't well fonctinned:
- *  Temperature, 
- *
- */
-
 #define TEST_MODE 0        // Set to 1 to enable Serial Monitor debugging, 0 to disable
 
 #include "LoRa_Transmission.hpp"
 #include <ArduinoLowPower.h> // Break low power mode
 #include <Adafruit_SCD30.h>
 Adafruit_SCD30  scd30;
+
 //Pressure
     #include "Baroleter_High_Accuracy.hpp"
 
@@ -73,7 +67,7 @@ void setup()
         Serial.begin(115200);
         Serial.println("START");
     #endif
-
+  
     int attempts = 0;
     while (!scd30.begin() && attempts < NB_MAX_SENSOR_ATTEMPT) 
     {
@@ -200,8 +194,6 @@ void loop()
     auto data_SHT3xsensor = SHT3xsensor.measure();
     float deep_temperature = data_SHT3xsensor.first;
     float deep_humidity = data_SHT3xsensor.second;
-
-
     float R_RGB, G_RGB, B_RGB, light_intensity;
 
     readAndNormalizeColor(&R_RGB, &G_RGB, &B_RGB, &light_intensity);
@@ -220,18 +212,17 @@ void loop()
     float nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh;
     readGasValues(&nh3, &co, &no2, &c3h8, &c4h10, &ch4, &h2, &c2h5oh);
     
-    
-    delay(2300);
-
-        Send_LoRa_Data(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
+    delay(500);
+    Send_LoRa_Data(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
                     soil_nutrients_N_Nitrogen, soil_nutrients_P_Phosphorus, soil_nutrients_K_Potassium,
                     surface_temperature, surface_humidity,
                     deep_temperature, deep_humidity,
                     light_intensity, light_infrared, light_ultraviolet,
                     R_RGB, G_RGB, B_RGB,
+                   
                     pressure, quality, O2,
                     nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh);
 
-    delay(7700);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
+    delay(7500);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
         
 }

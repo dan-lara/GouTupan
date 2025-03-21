@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "B4B-XH-A_LF__SN_")(type "KiCad")(uri "C:/Users/vladi/OneDrive/.Cours/.Cours Sorbonne/S8/Projets pluridisciplinaires 12 - Projet IOT 8/Gotupan/Hardware/PCB/B4B-XH-A_LF__SN_")(options "")(descr ""))
+  (lib (name "ARDUINO_MKR_WAN_1310")(type "KiCad")(uri "C:/Users/vladi/OneDrive/.Cours/.Cours Sorbonne/S8/Projets pluridisciplinaires 12 - Projet IOT 8/Gotupan/Hardware/PCB/ARDUINO_MKR_WAN_1310")(options "")(descr ""))
+)
