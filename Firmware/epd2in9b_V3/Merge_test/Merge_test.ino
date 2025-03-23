@@ -27,12 +27,15 @@
 #include <SPI.h>
 #include "epd2in9b_V3.hpp"
 #include "epd_text.hpp"
+#include "SHT3xSensor.hpp"
 
 #define TEST_MODE 1
 #define OPERATION_MODE 0
+#define NB_MAX_SENSOR_ATTEMPT 10
 
 Epd epd;
 EpdText epdText(epd);
+SHT3xSensor SHT3xsensor(0x44, &Wire);// ADDR: 0 => 0x44
 
 void setup() {
   // put your setup code here, to run once:
@@ -57,22 +60,48 @@ void setup() {
     #endif
     epd.Clear();
 
-  // 显示法语文本（带换行）
-  //epdText.displayText("AABCDEFGZz\n00123456789");
-  #if OPERATION_MODE
-  delay(2000);
-  epdText.updateDisplay(0, 23.4, 450.0, 40.2, 85.6,
-                      10, 5, 12,
-                      25.0, 45.0,
-                      22.3, 47.5,
-                      600, 100, 30,
-                      255, 128, 64,
-                      1013, 80, 20.9,
-                      0.1, 2.3, 0.5, 0.7, 0.6, 1.0, 0.2, 0.3);
-  #endif
+  
+    Serial.println("Try to boot SHT3x");
+    int attempts = 0;
+    while (!SHT3xsensor.begin() && attempts < NB_MAX_SENSOR_ATTEMPT) 
+    {
+        Serial.println("Into the loop");
+        #if TEST_MODE
+            Serial.println("ERROR: SHT3x sensor not detected!");
+        #endif
+        delay(400); 
+        attempts++;
+    }
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  auto data_SHT3xsensor = SHT3xsensor.measure();
+  float deep_temperature = data_SHT3xsensor.first;
+  float deep_humidity = data_SHT3xsensor.second;
+  
+  #if TEST_MODE
+    Serial.print("Temperature: ");
+    Serial.print(deep_temperature, 1);
+    Serial.print(" *C\tHumidity: ");
+    Serial.print(deep_humidity, 1);
+    Serial.print(" %RH");
+    Serial.println();
+  
+    Serial.println("Start to print on the E-ink");
+  #endif
+  epdText.updateDisplay(0, 23.4, 450.0, 40.2, 85.6,
+                      10, 5, 12,
+                      25.0, 45.0,
+                      deep_temperature, deep_humidity,
+                      600, 100, 30,
+                      255, 128, 64,
+                      1013, 80, 20.9,
+                      0.1, 2.3, 0.5, 0.7, 0.6, 1.0, 0.2, 0.3);
+  #if TEST_MODE
+    Serial.println("Printed on the E-ink");
+  #endif
+  
+  delay(1000);
   
 }
