@@ -1,8 +1,12 @@
 // Read_and_Send.ino
 #define TEST_MODE 0        // Set to 1 to enable Serial Monitor debugging, 0 to disable
 
-#include "LoRa_Transmission.hpp"
 #include <ArduinoLowPower.h> // Break low power mode
+
+//LoRa
+#include "LoRa_Transmission.hpp"
+
+//CO2 + T/H
 #include <Adafruit_SCD30.h>
 Adafruit_SCD30  scd30;
 
@@ -18,12 +22,6 @@ Adafruit_SCD30  scd30;
 //RGB
     #include "ColorSensor.hpp"
 
-//Humidity soil
-    #include "DFRobot_SEN0308.hpp"
-    //#define SENSOR_PIN A1   //30cm
-    #define SENSOR_PIN2 A2  //10cm
-    //SoilMoistureSensor_SEN0308 cap;
-    SoilMoistureSensor_SEN0308 cap2;
 //Humidity soil
     #include "DFRobot_SEN0308.hpp"
     //#define SENSOR_PIN A1   //30cm
@@ -58,6 +56,13 @@ Adafruit_SCD30  scd30;
     #include "SEN0332_O2.hpp"
     DFRobot_OxygenSensor oxygen;
 
+//E-ink
+    #include <SPI.h>
+    #include "epd2in9b_V3.hpp"
+    #include "epd_text.hpp"
+    Epd epd;
+    EpdText epdText(epd);
+
 #define TEST_MODE 0 
 #define NB_MAX_SENSOR_ATTEMPT 10
 
@@ -67,34 +72,23 @@ void setup()
         Serial.begin(115200);
         Serial.println("START");
     #endif
-  
-    int attempts = 0;
-    while (!scd30.begin() && attempts < NB_MAX_SENSOR_ATTEMPT) 
-    {
-        #if TEST_MODE
-            Serial.println("Tentative de connexion au capteur CO2...");
-        #endif
-        delay(400);  // Attendre 1 seconde avant de réessayer
-        attempts++;
-    }
-    #if TEST_MODE
-        Serial.begin(115200);
-        Serial.println("START");
-    #endif
 
-    int attempts = 0;
-    while (!scd30.begin() && attempts < NB_MAX_SENSOR_ATTEMPT) 
-    {
-        #if TEST_MODE
-            Serial.println("Tentative de connexion au capteur CO2...");
-        #endif
-        delay(400);  // Attendre 1 seconde avant de réessayer
-        attempts++;
-    }
+// LoRa
     initializeLoRa();
 
-    // Sensors Setup
+// Sensors Setup
     
+    // CO2 + T/H
+    int attempts = 0;
+    while (!scd30.begin() && attempts < NB_MAX_SENSOR_ATTEMPT) 
+    {
+        #if TEST_MODE
+            Serial.println("Tentative de connexion au capteur CO2...");
+        #endif
+        delay(400);  // Attendre 1 seconde avant de réessayer
+        attempts++;
+    }
+
     // Pressure
     setupBarometer(); 
     float pressure_test = getPressure();
@@ -151,6 +145,18 @@ void setup()
     airSensor.begin(NB_MAX_SENSOR_ATTEMPT);
     oxygen.setup_O2_sensor(NB_MAX_SENSOR_ATTEMPT);
 
+    // E-ink
+    #if TEST_MODE
+    Serial.print("2.9inch b V3 e-Paper init \r\n ");
+    #endif
+    if (epd.Init() != 0) {
+        #if TEST_MODE
+          Serial.print("e-Paper init failed\r\n ");
+        #endif
+        return;
+    }
+    epd.Clear();
+
     delay(2000);
 }
 
@@ -162,6 +168,7 @@ void loop()
     float outside_humidity = 49.85423; // %
     float outside_CO2 = 3220.53; // ppm
 
+    // CO2 + T/H
     if (scd30.dataReady()) 
     {
         if (scd30.read()) 
@@ -187,13 +194,11 @@ void loop()
     float surface_temperature = 8.58; // °C
     float surface_humidity = cap2.read(); // %
 
-    /*
-    float deep_temperature = SHT3xsensor.temperature(); // °C
-    float deep_humidity = SHT3xsensor.humidity(); //%
-    */
+    // Soil Temperatur + Humidity
     auto data_SHT3xsensor = SHT3xsensor.measure();
     float deep_temperature = data_SHT3xsensor.first;
     float deep_humidity = data_SHT3xsensor.second;
+    
     float R_RGB, G_RGB, B_RGB, light_intensity;
 
     readAndNormalizeColor(&R_RGB, &G_RGB, &B_RGB, &light_intensity);
@@ -212,6 +217,7 @@ void loop()
     float nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh;
     readGasValues(&nh3, &co, &no2, &c3h8, &c4h10, &ch4, &h2, &c2h5oh);
     
+    // LoRa transmission
     delay(500);
     Send_LoRa_Data(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
                     soil_nutrients_N_Nitrogen, soil_nutrients_P_Phosphorus, soil_nutrients_K_Potassium,
@@ -222,6 +228,17 @@ void loop()
                    
                     pressure, quality, O2,
                     nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh);
+    
+    // E-ink display
+    delay(500);
+    epdText.updateDisplay(mux_code, outside_temperature, outside_CO2, outside_humidity, battery_level,
+                            soil_nutrients_N_Nitrogen, soil_nutrients_P_Phosphorus, soil_nutrients_K_Potassium,
+                            surface_temperature, surface_humidity,
+                            deep_temperature, deep_humidity,
+                            light_intensity, light_infrared, light_ultraviolet,
+                            R_RGB, G_RGB, B_RGB,
+                            pressure, quality, O2,
+                            nh3, co, no2, c3h8, c4h10, ch4, h2, c2h5oh);
 
     delay(7500);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
         
