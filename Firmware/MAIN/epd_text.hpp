@@ -25,7 +25,7 @@ public:
         float R_RGB = 0, float G_RGB = 0, float B_RGB = 0,
         float pressure = 0, float quality = 0, float O2 = 0,
         float nh3 = 0, float co = 0, float no2 = 0, float c3h8 = 0, float c4h10 = 0, float ch4 = 0, float h2 = 0, float c2h5oh = 0
-    ); // 接口保留参数
+    ); // Interface reserved parameters
 
 private:
     Epd &_epd;

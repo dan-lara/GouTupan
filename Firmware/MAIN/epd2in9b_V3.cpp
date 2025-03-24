@@ -81,26 +81,26 @@ void Epd::WaitUntilIdle(void) {
     #endif
 
     do {
-        SendCommand(0x71);                    // 查询状态
-        busy = DigitalRead(busy_pin);         // 读取 busy 引脚
-        busy = !(busy & 0x01);                // 转换为逻辑值：1=忙，0=就绪
+        SendCommand(0x71);                    // Query E-ink status
+        busy = DigitalRead(busy_pin);         // Read the busy pin
+        busy = !(busy & 0x01);                // Convert to logical value: 1 = busy, 0 = ready
 
-        if (millis() - start > 20000) {        // 超时(20s)处理
+        if (millis() - start > 20000) {        // Timeout (20s) processing
             #if TEST_MODE
                 Serial.println("e-Paper busy timeout! Forcing reset...");
             #endif
-            Reset();                          // 硬件复位
-            Init();                           // 重新初始化配置
+            Reset();                          // Hardware Reset
+            Init();                           // Reinitialize configuration
             break;
         }
 
-        DelayMs(100);                         // 适当降低查询频率
+        DelayMs(100);                         // Appropriately reduce the query frequency to avoid device crashes
     } while (busy);
 
     #if TEST_MODE
         Serial.println("e-Paper ready.");
     #endif
-    DelayMs(200);                             // 确保状态稳定
+    DelayMs(200);                             // Ensure stable status
 }
 
 /**
@@ -118,7 +118,7 @@ void Epd::Reset(void) {
 }
 
 void Epd::DisplayFrame(const UBYTE *blackimage, const UBYTE *ryimage) {
-    SendCommand(0x10);  // 黑白图层写入
+    SendCommand(0x10);  // Black and white layer writing
     for (UWORD j = 0; j < height; j++) {
         for (UWORD i = 0; i < width; i++) {
           SendData(pgm_read_byte(&blackimage[i + (j*width)]));
@@ -126,7 +126,7 @@ void Epd::DisplayFrame(const UBYTE *blackimage, const UBYTE *ryimage) {
     }
     SendCommand(0x92);
     
-    SendCommand(0x13);  // 红色图层写入
+    SendCommand(0x13);  // Red layer write
     for (UWORD j = 0; j < height; j++) {
         for (UWORD i = 0; i < width; i++) {
           SendData(pgm_read_byte(&ryimage[i + (j*width)]));
@@ -134,7 +134,7 @@ void Epd::DisplayFrame(const UBYTE *blackimage, const UBYTE *ryimage) {
     }
     SendCommand(0x92);
 
-    SendCommand(0x12);  // 刷新屏幕命令
+    SendCommand(0x12);  // Refresh screen command
     WaitUntilIdle();
 }
 

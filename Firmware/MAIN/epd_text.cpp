@@ -9,12 +9,12 @@ char* dtostrf(double val, signed char width, unsigned char prec, char* buf) {
 #endif
 
 #define TEST_MODE 1
-// 根据imagedata.cpp分析，屏幕分辨率为128x296，缓冲区长=128/8*296=4736字节
+// According to imagedata.cpp analysis, the screen resolution is 128x296, and the buffer length = 128/8*296 = 4736 bytes
 #define BUFFER_SIZE 4736 
 // #define TEST_MODE 1
 
 EpdText::EpdText(Epd &epd) : _epd(epd) {
-    memset(_buffer, 0xFF, BUFFER_SIZE); // 初始化为全白（0xFF代表白色）
+    memset(_buffer, 0xFF, BUFFER_SIZE); // Initialized to full white (0xFF represents white)
 }
 
 void EpdText::init() {
@@ -22,9 +22,9 @@ void EpdText::init() {
 }
 
 void EpdText::clear() {
-    memset(_buffer, 0xFF, BUFFER_SIZE); // 清屏：全白填充
-    _epd.DisplayFrame(_buffer, _buffer); // 双缓冲都用同一数据
-    _epd.WaitUntilIdle();  // 添加这一行，确保清屏成功
+    memset(_buffer, 0xFF, BUFFER_SIZE); // Clear screen: Fill with all white
+    _epd.DisplayFrame(_buffer, _buffer); // Double buffer (black white, red) uses the same data
+    _epd.WaitUntilIdle();  // Ensure that the screen is cleared successfully
 }
 
 void EpdText::drawChar(int x, int y, char c) {
@@ -33,10 +33,10 @@ void EpdText::drawChar(int x, int y, char c) {
         Serial.println(c);
     #endif
 
-    // 坐标转换：x沿长边（296px方向），y沿宽边（128px方向）
+    // Coordinate conversion: x along the long side (296px direction), y along the wide side (128px direction)
     if (x < 0 || x >= EPD_HEIGHT || y < 0 || y >= EPD_WIDTH) return;
 
-    // 字体索引计算（0x21对应ASCII 33 '!'）
+    // Font index calculation (0x21 corresponds to ASCII 33 '!')
     uint8_t font_index = static_cast<uint8_t>(c) - 0x21;
     if (font_index >= 224) return;
 
@@ -44,15 +44,15 @@ void EpdText::drawChar(int x, int y, char c) {
         uint8_t line = pgm_read_byte(&Font8x8_FR[font_index][j]);
         for (int i = 0; i < CHAR_WIDTH; i++) {
             if (line & (0x80 >> i)) {
-                // 坐标计算（适配屏幕物理布局）
-                int px = x + j; // 长边方向
-                int py = EPD_WIDTH - 1 - (y + i); // 宽边方向镜像（可选，根据实际显示方向调整）
+                // Coordinate calculation (adapting to the physical layout of the screen)
+                int px = x + j; // Long side direction
+                int py = EPD_WIDTH - 1 - (y + i); // Mirror image in broadside direction
                 
-                // 计算缓冲区位置（每个字节代表8个垂直像素）
+                // Calculate buffer position (each byte represents 8 vertical pixels)
                 if (py >= 0 && py < EPD_WIDTH && px < EPD_HEIGHT) {
                     int byteIndex = (py / 8) + (px * (EPD_WIDTH / 8));
                     uint8_t bitMask = 0x80 >> (py % 8);
-                    _buffer[byteIndex] &= ~bitMask; // 设置黑色（0代表黑色）
+                    _buffer[byteIndex] &= ~bitMask; // Set black (0 means black)
                 }
             }
         }
@@ -62,19 +62,19 @@ void EpdText::drawChar(int x, int y, char c) {
 void EpdText::newlineHandler(int &x, int &y) {
     y += CHAR_HEIGHT + LINE_SPACING;
     x = 0;
-    if (y + CHAR_HEIGHT > EPD_WIDTH) { // 触底处理
+    if (y + CHAR_HEIGHT > EPD_WIDTH) { // Dealing with bottoming out
         y = 0;
-        //clear(); // 清屏并重置
+        //clear(); // Clear screen and reset
     }
 }
 
 void EpdText::displayText(const char* text) {
-    int currentX = 0; // 沿长边（296px方向）
-    int currentY = 0; // 沿宽边（128px方向）
+    int currentX = 0; // Along the long side (296px direction)
+    int currentY = 0; // Along the width (128px)
 
     #if TEST_MODE
         Serial.println(">>> TEXT TO DISPLAY:");
-        Serial.println(text);  // 打印出你真正准备显示的内容
+        Serial.println(text);  // Print the content to be displayed
         Serial.println();
     #endif
 
@@ -88,7 +88,7 @@ void EpdText::displayText(const char* text) {
         drawChar(currentX, currentY, *text);
         currentX += CHAR_WIDTH;
 
-        if (currentX + CHAR_WIDTH > EPD_HEIGHT) { // 长边越界换行
+        if (currentX + CHAR_WIDTH > EPD_HEIGHT) { // Long edge line break
             newlineHandler(currentX, currentY);
         }
 
@@ -96,10 +96,10 @@ void EpdText::displayText(const char* text) {
     }
 
     _epd.DisplayFrame(_buffer, _buffer);
-    _epd.WaitUntilIdle();  // 添加这一行，确保清屏成功
+    _epd.WaitUntilIdle();  // Ensure that the screen is cleared successfully
 }
 
-/*
+/* Old updateDisplay program
 void EpdText::updateDisplay(float Tair, float T10, float T30, float Hair, float H10, float H30, float pressure) {
     char buf[120];
     snprintf(buf, sizeof(buf), 
@@ -110,7 +110,7 @@ void EpdText::updateDisplay(float Tair, float T10, float T30, float Hair, float 
         Tair, T10, T30, Hair, H10, H30, pressure
     );
     
-    memset(_buffer, 0xFF, BUFFER_SIZE); // 生成新数据前清空为全白
+    memset(_buffer, 0xFF, BUFFER_SIZE); // Clear to all white before generating new data
     displayText(buf);
     
     Serial.print("Display updated, wait for idle...\n");
@@ -129,9 +129,9 @@ void EpdText::updateDisplay(
     float nh3, float co, float no2, float c3h8, float c4h10, float ch4, float h2, float c2h5oh
 ) {
     String text;
-    text.reserve(1024);  // 预分配内存
+    text.reserve(1024);  // Preallocate memory
 
-    // 拼接数据（规范格式化）
+    // Splicing data (standard formatting)
     text += "T:" + String(outside_temperature, 1) + "C, ";
     text += "H:" + String(outside_humidity, 1) + "%, ";
     text += "CO2:" + String(outside_CO2, 0) + "ppm,\n";
@@ -155,9 +155,9 @@ void EpdText::updateDisplay(
     text += "CH4:" + String(ch4, 2) + ", C3H8:" + String(c3h8, 2) + ", C4H10:" + String(c4h10, 2) + ",\n";
     text += "H2:" + String(h2, 2) + ", EtOH:" + String(c2h5oh, 2);
 
-    // 清空缓冲区并显示
+    // Clear the buffer and display
     memset(_buffer, 0xFF, BUFFER_SIZE);
-    displayText(text.c_str());  // 直接传递正确字符串
+    displayText(text.c_str());  // Pass the correct string directly
     
     #if TEST_MODE
         Serial.print("Display updated, wait for idle...\n");
