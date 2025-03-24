@@ -1,4 +1,4 @@
-#include "SEN0332_O2.hpp"
+#include "SEN0322_O2.hpp"
 
 DFRobot_OxygenSensor::DFRobot_OxygenSensor(TwoWire *pWire) {
   this->_pWire = pWire;
