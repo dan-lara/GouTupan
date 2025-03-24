@@ -39,5 +39,4 @@ private:
   float oxygenData[OCOUNT] = {0.0};
   TwoWire *_pWire;
 };
-
 #endif

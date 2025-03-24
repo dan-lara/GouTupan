@@ -20,7 +20,9 @@ void Send_LoRa_Data(
     
     float light_intensity, float light_infrared, float light_ultraviolet,
     float R_RGB, float G_RGB, float B_RGB,
+  
     float pressure, float quality, float O2,
+  
     float nh3, float co, float no2, float c3h8, float c4h10, float ch4, float h2, float c2h5oh
 );
 uint8_t compress_2_HEX (float value); 

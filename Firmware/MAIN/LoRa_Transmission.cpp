@@ -183,6 +183,7 @@ void Send_LoRa_Data
 
     float light_intensity, float light_infrared, float light_ultraviolet,
     float R_RGB, float G_RGB, float B_RGB,
+  
     float pressure, float quality, float O2,
     float nh3, float co, float no2, float c3h8, float c4h10, float ch4, float h2, float c2h5oh
 ) 
@@ -327,6 +328,7 @@ void Send_LoRa_Data
     for (int i = 42; i < NB_BITS_PAYLOAD; i++) payload[i] = 0x00;
 
     // 1️⃣9️⃣ Debug print payload 
+  
     #if TEST_MODE
         Serial.print("\nSending LoRa -> Payload: ");
         for (int i = 0; i < NB_BITS_PAYLOAD; i++) 
