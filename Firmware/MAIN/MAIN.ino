@@ -53,7 +53,7 @@ Adafruit_SCD30  scd30;
     AirSensor airSensor;
 
 //O2 Sensor
-    #include "SEN0332_O2.hpp"
+    #include "SEN0322_O2.hpp"
     DFRobot_OxygenSensor oxygen;
 
 //E-ink
