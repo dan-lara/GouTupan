@@ -54,7 +54,7 @@ void initializeLoRa()
         Serial.println();  // Empty line for better readability
     #endif
 
-    MKR1013modem.minPollInterval(60);
+    MKR1013modem.minPollInterval(10);
 }
 
 uint8_t compress_2_HEX(float value) 
@@ -214,17 +214,17 @@ void Send_LoRa_Data
     payload[4] += (compressed_battery_level) << 4;  // 4 low-order bits
 
     // 6️⃣ 1.5_HEX byte N_nutriment compression
-    uint16_t compressed_soil_nutrients_N_Nitrogen = compress_3_HEX(soil_nutrients_N_Nitrogen); 
+    uint16_t compressed_soil_nutrients_N_Nitrogen = compress_3_HEX(soil_nutrients_N_Nitrogen*10); 
     payload[4] += (compressed_soil_nutrients_N_Nitrogen) >> 8;  // 4 high-order bits
     payload[5] =  (compressed_soil_nutrients_N_Nitrogen);       // 8 low-order bits
 
     // 7️⃣ 1.5_HEX byte P_nutriment compression
-    uint16_t compressed_soil_nutrients_P_Phosphorus = compress_3_HEX(soil_nutrients_P_Phosphorus); 
+    uint16_t compressed_soil_nutrients_P_Phosphorus = compress_3_HEX(soil_nutrients_P_Phosphorus*10); 
     payload[6] =  (compressed_soil_nutrients_P_Phosphorus) >> 4;  // 8 high-order bits
     payload[7] += (compressed_soil_nutrients_P_Phosphorus) << 4;  // 4 low-order bits
 
     // 8️⃣ 1.5_HEX byte K_nutriment compression
-    uint16_t compressed_soil_nutrients_K_Potassium = compress_3_HEX(soil_nutrients_K_Potassium); 
+    uint16_t compressed_soil_nutrients_K_Potassium = compress_3_HEX(soil_nutrients_K_Potassium*10); 
     payload[7] += (compressed_soil_nutrients_K_Potassium) >> 8;  // 4 high-order bits
     payload[8] =  (compressed_soil_nutrients_K_Potassium);       // 8 low-order bits
 
@@ -361,7 +361,7 @@ void Send_LoRa_Data
             #if TEST_MODE
                 Serial.println("❌ Sending error, check antenna!");
             #endif
-            delay(10000); // 10 sec
+            delay(1000); // 1 sec
             attempt++;
         }
     } while (attempt < MAX_ATTEMPTS);
@@ -394,6 +394,6 @@ void LoraUnitShipment(float value)
             else Serial.println("⚠️ Error, check Antenna! Retrying...");
         #endif
 
-        delay(10000);
+        delay(1000);
     } while (err <= 0);
 }

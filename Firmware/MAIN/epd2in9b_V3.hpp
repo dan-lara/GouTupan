@@ -11,6 +11,8 @@
 #define UWORD  unsigned int
 #define UBYTE  unsigned char
 
+// extern bool flag;
+
 class Epd : EpdIf {
 public:
     Epd();
@@ -23,6 +25,9 @@ public:
     void SendData(unsigned char data);
     void Sleep(void);
     void Clear(void);
+    bool eink_failed = false; // Utilisé pour marquer l'échec de l'initialisation
+    uint8_t busy_attempts = 0; // Tentatives d'enregistrement
+
     
 private:
     unsigned int reset_pin;
