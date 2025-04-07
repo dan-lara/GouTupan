@@ -82,7 +82,7 @@ Toggle the **side switch** on the MCU enclosure. Data transmission occurs every 
 | **Grove Barometer 101020068** | Barometric Pressure                                                             | 30–110 kPa (±0.01 hPa)                                                                 |
 | **SEN0322**                | Oxygen (O₂) Concentration                                                          | 0–25% vol (drift < 2%/month)                                                          |
 | **SGP40**                  | Volatile Organic Compounds (VOC)                                                   | VOC Index: 0–500,<br>Ethanol: 0–1000 ppm                                              |
-| **SHT35**                  | Temperature & Humidity                                                             | Humidity: 0–100% RH (±2%),<br>Temperature: -40–125 °C (±0.2 °C)                      |
+| **SHT30/SHT20**            | Temperature & Humidity                                                             | Humidity: 0–100% RH (±2%RH/±3%RH),<br>Temperature: -40–125 °C (±0.2 °C/±0.3 °C)       |
 | **Grove Gas Sensor 101020820** | Ammonia (NH₃), <br>Carbon Monoxide (CO), <br>Nitrogen Dioxide (NO₂),<br>Propane (C₃H₈), <br>Butane (C₄H₁₀), <br>Methane (CH₄), <br>Hydrogen (H₂), <br>Ethanol (C₂H₅OH) | NH₃: 1–500 ppm,<br>CO: 5–5000 ppm,<br>NO₂: 0.05–2 ppm,<br>Hydrocarbons: 500–10,000 ppm,<br>H₂: 1–1000 ppm,<br>Ethanol: 1–500 ppm |
 
 ---
