@@ -83,7 +83,7 @@ Activez l'**interrupteur latéral** sur le boîtier MCU. Les données sont trans
 | **Baromètre Grove 101020068** | Pression barométrique                                                          | 30–110 kPa (±0,01 hPa)                                                                     |
 | **SEN0322**                | Concentration en O₂                                                               | 0–25 %vol (dérive < 2%/mois)                                                              |
 | **SGP40**                  | Composés organiques volatils (VOC)                                                | Indice COV : 0–500,<br>Éthanol : 0–1000 ppm                                               |
-| **SHT35**                  | Température et Humidité                                                           | Humidité : 0–100 %HR (±2%),<br>Température : -40–125 °C (±0,2 °C)                         |
+| **SHT30/SHT20**          | Température et Humidité                                                           | Humidité : 0–100 %HR (±2%RH/±3%RH),<br>Température : -40–125 °C (±0,2 °C/±0.3 °C)                         |
 | **Capteur de gaz Grove 101020820** | Ammoniac (NH₃), <br>Monoxyde de carbone (CO), <br>Dioxyde d'azote (NO₂),<br>Propane (C₃H₈), <br>Butane (C₄H₁₀), <br>Méthane (CH₄), <br>Hydrogène (H₂), <br>Éthanol (C₂H₅OH)                      | NH₃ : 1–500 ppm,<br>CO : 5–5000 ppm,<br>NO₂ : 0,05–2 ppm,<br>Hydrocarbures : 500–10 000 ppm,<br>H₂ : 1–1000 ppm,<br>Éthanol : 1–500 ppm    |
 
 ---  
