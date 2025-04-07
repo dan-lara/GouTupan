@@ -36,6 +36,7 @@ private:
     unsigned int busy_pin;
     unsigned long width;
     unsigned long height;
+    uint8_t busy_timeout_count = 0;
 };
 
 #endif

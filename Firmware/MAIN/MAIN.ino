@@ -62,17 +62,17 @@ Adafruit_SCD30  scd30;
 //Timer
     #define DONE_PIN 3  // TPL5110 DONE 连接到 Arduino D2
 
-//NPK
-    #include "NPK.hpp"
-
 // E-ink
     #include <SPI.h>
     #include "epd2in9b_V3.hpp"
     #include "epd_text.hpp"
     Epd epd;
     EpdText epdText(epd);
-    
-#define TEST_MODE 0         // Set to 1 to enable Serial Monitor debugging, 0 to disable
+
+//NPK
+    #include "NPK.hpp"
+
+#define TEST_MODE 0        // Set to 1 to enable Serial Monitor debugging, 0 to disable
 #define NB_MAX_SENSOR_ATTEMPT 10
 long int t=0;
 
@@ -92,20 +92,20 @@ void setup()
     digitalWrite(DONE_PIN, LOW); // 初始状态，DONE 置低
     
 
-    // E-ink
-    #if TEST_MODE
-    Serial.print("2.9inch b V3 e-Paper init \r\n ");
-    #endif
-    // if(flag == false){
-      if (epd.Init() != 0) 
-      {
-          #if TEST_MODE
-            Serial.print("e-Paper init failed\r\n ");
-          #endif
-          return;
-      }
-    // }
-    epd.Clear();
+    // // E-ink
+    // #if TEST_MODE
+    // Serial.print("2.9inch b V3 e-Paper init \r\n ");
+    // #endif
+    // // if(flag == false){
+    //   if (epd.Init() != 0) 
+    //   {
+    //       #if TEST_MODE
+    //         Serial.print("e-Paper init failed\r\n ");
+    //       #endif
+    //       return;
+    //   }
+    // // }
+    // epd.Clear();
 
 // LoRa
     #if TEST_MODE
@@ -196,7 +196,7 @@ void setup()
     airSensor.begin(NB_MAX_SENSOR_ATTEMPT);
     oxygen.setup_O2_sensor(NB_MAX_SENSOR_ATTEMPT);
 
-    // // E-ink
+    // // // E-ink
     #if TEST_MODE
     Serial.print("2.9inch b V3 e-Paper init \r\n ");
     #endif
@@ -209,8 +209,9 @@ void setup()
         #if TEST_MODE
             Serial.println("SUCCESS.");
         #endif
-        epd.Clear();               // Effacer l'écran uniquement en cas de succès
+        //epd.Clear();               // Effacer l'écran uniquement en cas de succès
     }
+
 
     // NPK
     #if TEST_MODE
@@ -473,7 +474,8 @@ void loop()
         delay(5000);
       #endif
 
-    delay(7500);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
+    // flag = false;//eink
+    // delay(7500);  // Comply with transmission constraints (200,000 ms = 3.33 min) => ici toutes les 5 min
     digitalWrite(DONE_PIN, HIGH);
     delay(1);
     digitalWrite(DONE_PIN, LOW);      

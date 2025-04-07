@@ -1,5 +1,7 @@
 #include "LoRa_Transmission.hpp"
 #include "Arduino_Key.hpp"  // Contient les constantes APPEUI et APPKEY
+#include <Arduino.h>
+#define DONE_PIN 3
 
 LoRaModem MKR1013modem;
 
@@ -13,12 +15,23 @@ void initializeLoRa()
         Serial.println("\nStarting LoRa module...");
     #endif
   
-    if (!MKR1013modem.begin(EU868)) 
+    int attempts = 0;
+    if (!MKR1013modem.begin(EU868) && attempts < 5) 
     {
         #if TEST_MODE
             Serial.println("LoRa module startup failed!");
         #endif
-        while (1);
+        delay(400);
+        attempts++;
+
+    }
+
+    if (attempts == 5) 
+    {
+        digitalWrite(DONE_PIN, HIGH);
+        delay(1);
+        digitalWrite(DONE_PIN, LOW);      
+        delay(1);
     }
 
     #if TEST_MODE
@@ -38,7 +51,10 @@ void initializeLoRa()
         #if TEST_MODE
             Serial.println("Connection failed! Check your signal and retry.");
         #endif
-        while (1);
+        digitalWrite(DONE_PIN, HIGH);
+        delay(1);
+        digitalWrite(DONE_PIN, LOW);      
+        delay(1);
     }
 
     #if TEST_MODE
@@ -153,11 +169,11 @@ bool retrySendingStoredPayload()
     #endif
 
     // Attempt to resend data up to MAX_ATTEMPTS times
-    for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) 
+    for (int attemptt = 1; attemptt <= MAX_ATTEMPTS; attemptt++) 
     {
         #if TEST_MODE
             Serial.print("Attempt ");
-            Serial.print(attempt);
+            Serial.print(attemptt);
             Serial.println("...");
             Serial.println("TEST MODE: Simulating payload transmission.");
         #endif
@@ -168,6 +184,11 @@ bool retrySendingStoredPayload()
         }
         delay(5000);  // Wait before retrying 5 sec
     }
+    digitalWrite(DONE_PIN, HIGH);
+    delay(1);
+    digitalWrite(DONE_PIN, LOW);      
+    delay(1);
+    
     return false;  // Transmission failed
 }
 
