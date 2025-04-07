@@ -1,5 +1,7 @@
 #include "LoRa_Transmission.hpp"
 #include "Arduino_Key.hpp"  // Contient les constantes APPEUI et APPKEY
+#include <Arduino.h>
+#define DONE_PIN 3
 
 LoRaModem MKR1013modem;
 
@@ -13,12 +15,23 @@ void initializeLoRa()
         Serial.println("\nStarting LoRa module...");
     #endif
   
-    if (!MKR1013modem.begin(EU868)) 
+    int attempts = 0;
+    if (!MKR1013modem.begin(EU868) && attempts < 5) 
     {
         #if TEST_MODE
             Serial.println("LoRa module startup failed!");
         #endif
-        while (1);
+        delay(400);
+        attempts++;
+
+    }
+
+    if (attempts == 5) 
+    {
+        digitalWrite(DONE_PIN, HIGH);
+        delay(1);
+        digitalWrite(DONE_PIN, LOW);      
+        delay(1);
     }
 
     #if TEST_MODE
@@ -38,7 +51,10 @@ void initializeLoRa()
         #if TEST_MODE
             Serial.println("Connection failed! Check your signal and retry.");
         #endif
-        while (1);
+        digitalWrite(DONE_PIN, HIGH);
+        delay(1);
+        digitalWrite(DONE_PIN, LOW);      
+        delay(1);
     }
 
     #if TEST_MODE
@@ -54,7 +70,7 @@ void initializeLoRa()
         Serial.println();  // Empty line for better readability
     #endif
 
-    MKR1013modem.minPollInterval(60);
+    MKR1013modem.minPollInterval(10);
 }
 
 uint8_t compress_2_HEX(float value) 
@@ -153,11 +169,11 @@ bool retrySendingStoredPayload()
     #endif
 
     // Attempt to resend data up to MAX_ATTEMPTS times
-    for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) 
+    for (int attemptt = 1; attemptt <= MAX_ATTEMPTS; attemptt++) 
     {
         #if TEST_MODE
             Serial.print("Attempt ");
-            Serial.print(attempt);
+            Serial.print(attemptt);
             Serial.println("...");
             Serial.println("TEST MODE: Simulating payload transmission.");
         #endif
@@ -168,6 +184,11 @@ bool retrySendingStoredPayload()
         }
         delay(5000);  // Wait before retrying 5 sec
     }
+    digitalWrite(DONE_PIN, HIGH);
+    delay(1);
+    digitalWrite(DONE_PIN, LOW);      
+    delay(1);
+    
     return false;  // Transmission failed
 }
 
@@ -214,17 +235,17 @@ void Send_LoRa_Data
     payload[4] += (compressed_battery_level) << 4;  // 4 low-order bits
 
     // 6️⃣ 1.5_HEX byte N_nutriment compression
-    uint16_t compressed_soil_nutrients_N_Nitrogen = compress_3_HEX(soil_nutrients_N_Nitrogen); 
+    uint16_t compressed_soil_nutrients_N_Nitrogen = compress_3_HEX(soil_nutrients_N_Nitrogen*10); 
     payload[4] += (compressed_soil_nutrients_N_Nitrogen) >> 8;  // 4 high-order bits
     payload[5] =  (compressed_soil_nutrients_N_Nitrogen);       // 8 low-order bits
 
     // 7️⃣ 1.5_HEX byte P_nutriment compression
-    uint16_t compressed_soil_nutrients_P_Phosphorus = compress_3_HEX(soil_nutrients_P_Phosphorus); 
+    uint16_t compressed_soil_nutrients_P_Phosphorus = compress_3_HEX(soil_nutrients_P_Phosphorus*10); 
     payload[6] =  (compressed_soil_nutrients_P_Phosphorus) >> 4;  // 8 high-order bits
     payload[7] += (compressed_soil_nutrients_P_Phosphorus) << 4;  // 4 low-order bits
 
     // 8️⃣ 1.5_HEX byte K_nutriment compression
-    uint16_t compressed_soil_nutrients_K_Potassium = compress_3_HEX(soil_nutrients_K_Potassium); 
+    uint16_t compressed_soil_nutrients_K_Potassium = compress_3_HEX(soil_nutrients_K_Potassium*10); 
     payload[7] += (compressed_soil_nutrients_K_Potassium) >> 8;  // 4 high-order bits
     payload[8] =  (compressed_soil_nutrients_K_Potassium);       // 8 low-order bits
 
@@ -361,7 +382,7 @@ void Send_LoRa_Data
             #if TEST_MODE
                 Serial.println("❌ Sending error, check antenna!");
             #endif
-            delay(10000); // 10 sec
+            delay(1000); // 1 sec
             attempt++;
         }
     } while (attempt < MAX_ATTEMPTS);
@@ -394,6 +415,6 @@ void LoraUnitShipment(float value)
             else Serial.println("⚠️ Error, check Antenna! Retrying...");
         #endif
 
-        delay(10000);
+        delay(1000);
     } while (err <= 0);
 }

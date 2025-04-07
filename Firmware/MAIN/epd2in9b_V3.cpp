@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include "epd2in9b_V3.hpp"
 
-#define TEST_MODE 1
+#define TEST_MODE 0
+
+// bool flag = false;
 
 Epd::~Epd() {
 };
@@ -19,11 +21,18 @@ int Epd::Init(void) {
     if (IfInit() != 0) {
         return -1;
     }
+    if (eink_failed) {  // Si l'initialisation échoue, renvoie directement une erreur
+        return -1;
+    }
     Reset();
 
     SendCommand(0x04);  // power on
     WaitUntilIdle();    // waiting for the electronic paper IC to release the idle signal
 
+    // Si l'indicateur WaitUntilIdle échoue, une erreur est renvoyée
+    if (eink_failed) {
+        return -1;
+    }
     SendCommand(0x00);  // panel setting
     SendData(0x0f); // default data
     SendData(0x89); // 128x296,Temperature sensor, boost and other related timing settings
@@ -38,7 +47,6 @@ int Epd::Init(void) {
                     // WBRmode:VBDF F7 VBDW 77 VBDB 37  VBDR B7
     return 0;
 }
-
 /**
  *  @brief: basic function for sending commands
  */
@@ -74,6 +82,8 @@ void Epd::WaitUntilIdle(void) {
 }
 */
 void Epd::WaitUntilIdle(void) {
+    if (eink_failed) return;  // Si déjà en échec, quitter directement
+
     unsigned char busy;
     unsigned long start = millis();
     #if TEST_MODE
@@ -81,26 +91,36 @@ void Epd::WaitUntilIdle(void) {
     #endif
 
     do {
-        SendCommand(0x71);                    // Query E-ink status
-        busy = DigitalRead(busy_pin);         // Read the busy pin
-        busy = !(busy & 0x01);                // Convert to logical value: 1 = busy, 0 = ready
+        SendCommand(0x71);                    // Interroger l'état
+        busy = DigitalRead(busy_pin);         // Lire la broche busy
+        busy = !(busy & 0x01);                // Convertir en valeur logique : 1=occupé, 0=prêt
 
-        if (millis() - start > 20000) {        // Timeout (20s) processing
+        if (millis() - start > 30000) {       // Gestion du délai d'attente (30 secondes)
             #if TEST_MODE
-                Serial.println("e-Paper busy timeout! Forcing reset...");
+                Serial.println("Délai d'attente e-Paper dépassé! Réinitialisation forcée...");
             #endif
-            Reset();                          // Hardware Reset
-            Init();                           // Reinitialize configuration
-            break;
+            Reset();                          // Réinitialisation matérielle
+            busy_timeout_count++;             // Incrémenter le compteur de délais
+
+            if (busy_timeout_count >= 2) {    // 3ème expiration du délai (après 2 cumulées)
+                eink_failed = true;           // Marquer l'échec définitif
+                #if TEST_MODE
+                    Serial.println("Échec définitif de l'e-ink!");
+                #endif
+                break;                        // Sortir de la boucle
+            }
+
+            start = millis();                 // Réinitialiser le chronomètre
+            continue;                         // Revenir dans la boucle d'attente
         }
 
-        DelayMs(100);                         // Appropriately reduce the query frequency to avoid device crashes
-    } while (busy);
+        DelayMs(100);                         
+    } while (busy && !eink_failed);           // Quitter la boucle en cas d'échec
 
     #if TEST_MODE
-        Serial.println("e-Paper ready.");
+        if (!eink_failed) Serial.println("e-Paper prêt.");
     #endif
-    DelayMs(200);                             // Ensure stable status
+    DelayMs(200);
 }
 
 /**

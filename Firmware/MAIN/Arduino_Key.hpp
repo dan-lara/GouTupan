@@ -1,7 +1,7 @@
 #ifndef ARDUINO_KEY
 #define ARDUINO_KEY
 
-#define MODULE 1  // Define module selection
+#define MODULE 4  // Define module selection
 #define APPEUI "AA2025AAAA2025AA"
 
 #if MODULE == 1 
@@ -12,7 +12,10 @@
     #define APPKEY "F48978BC2A48520C22CE59A01DA1E5A8"
 
 #elif MODULE == 3
-    #define APPKEY "00000000000000000000000000000000"
+    #define APPKEY "53205F00D3B9F9E53EF72175942B4808"
+
+#elif MODULE == 4
+    #define APPKEY "4D15FFA9BB2914AF98C62F0B03F277E7"
 
 #else
     #error "Invalid MODULE selected"

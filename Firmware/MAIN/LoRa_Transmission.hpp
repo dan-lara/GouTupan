@@ -5,7 +5,7 @@
 #include <FlashStorage.h>
 #define MAX_ATTEMPTS 5
 #define NB_BITS_PAYLOAD 43
-//#define TEST_MODE 0        // Set to 1 to enable Serial Monitor debugging, 0 to disable
+// #define TEST_MODE 0        // Set to 1 to enable Serial Monitor debugging, 0 to disable
 
 // Declaration of functions
 void initializeLoRa();
